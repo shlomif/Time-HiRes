@@ -8,6 +8,8 @@ cycle.  Most notably portability across platforms has been enhanced,
 and the interval timers (setitimer, getitimer) have been added.
 Note that the version of Time::HiRes that is included in Perl 5.8.0
 calls itself 1.20_00, but it is equivalent to this Time::HiRes version.
+Note also that in 1.30 Wegscheid turns over the maintenance to Jarkko
+Hietaniemi.
 
 1.20 adds a platform neutral set of C accessible routines if you are running
 5.005+.  All other changes are packaging changes and build fixes(?) for
