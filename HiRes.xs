@@ -41,7 +41,69 @@ gettimeofday (struct timeval *tp, int nothing)
  tt = mktime (&tmtm);
  tp->tv_sec = tt;
  tp->tv_usec = st.wMilliseconds * 1000;
- return 1;
+ return 0;
+}
+#endif
+
+#if !defined(HAS_GETTIMEOFDAY) && defined(VMS)
+#define HAS_GETTIMEOFDAY
+
+#include <time.h> /* gettimeofday */
+#include <stdlib.h> /* qdiv */
+#include <starlet.h> /* sys$gettim */
+#include <descrip.h>
+
+/*
+        VMS binary time is expressed in 100 nano-seconds since
+        system base time which is 17-NOV-1858 00:00:00.00
+*/
+
+#define DIV_100NS_TO_SECS  10000000L
+#define DIV_100NS_TO_USECS 10L
+
+/* 
+        gettimeofday is supposed to return times since the epoch
+        so need to determine this in terms of VMS base time
+*/
+static $DESCRIPTOR(dscepoch,"01-JAN-1970 00:00:00.00");
+
+static __int64 base_adjust=0;
+
+int
+gettimeofday (struct timeval *tp, void *tpz)
+{
+ long ret;
+ __int64 quad;
+ __qdiv_t ans1,ans2;
+
+/*
+        In case of error, tv_usec = 0 and tv_sec = VMS condition code.
+        The return from function is also set to -1.
+        This is not exactly as per the manual page.
+*/
+
+ tp->tv_usec = 0;
+
+ if (base_adjust==0) { /* Need to determine epoch adjustment */
+        ret=sys$bintim(&dscepoch,&base_adjust);
+        if (1 != (ret &&1)) {
+                tp->tv_sec = ret;
+                return -1;
+        }
+ }
+
+ ret=sys$gettim(&quad); /* Get VMS system time */
+ if ((1 && ret) == 1) {
+        quad -= base_adjust; /* convert to epoch offset */
+        ans1=qdiv(quad,DIV_100NS_TO_SECS);
+        ans2=qdiv(ans1.rem,DIV_100NS_TO_USECS);
+        tp->tv_sec = ans1.quot; /* Whole seconds */
+        tp->tv_usec = ans2.quot; /* Micro-seconds */
+ } else {
+        tp->tv_sec = ret;
+        return -1;
+ }
+ return 0;
 }
 #endif
 
@@ -138,7 +200,7 @@ gettimeofday()
         PPCODE:
 	int status;
         status = gettimeofday (&Tp, NULL);
-        if (GIMME_V == G_ARRAY) {
+        if (GIMME == G_ARRAY) {
 	     EXTEND(sp, 2);
              PUSHs(sv_2mortal(newSViv(Tp.tv_sec)));
              PUSHs(sv_2mortal(newSViv(Tp.tv_usec)));
@@ -160,9 +222,12 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.9 1998/07/07 02:42:06 wegscd Exp wegscd $
+# $Id: HiRes.xs,v 1.10 1998/09/30 02:36:25 wegscd Exp wegscd $
 
 # $Log: HiRes.xs,v $
+# Revision 1.10  1998/09/30 02:36:25  wegscd
+# Add VMS changes.
+#
 # Revision 1.9  1998/07/07 02:42:06  wegscd
 # Win32 usleep()
 #

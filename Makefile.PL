@@ -75,6 +75,10 @@ static int foo()
     struct timeval tv;
     gettimeofday(&tv, 0);
 }
+int main _((int argc, char** argv, char** env))
+{
+    foo();
+}
 EOM
     return 0;
 }

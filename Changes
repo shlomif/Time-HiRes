@@ -1,5 +1,16 @@
 Revision history for Perl extension Time::HiRes.
 
+1.19  Tue Sep 29 22:30 1998
+	- put VMS gettimeofday() in. Patch is from Sebastian Bazley
+	  <seb@stian.demon.co.uk>
+	- change GIMME_V to GIMME to help people with older versions of
+	  Perl.
+	- fix Win32 version of gettimeofday(). It didn't affect anything,
+	  but it confuses people reading the code when the return value
+	  is backwards (0 is success).
+	- fix Makefile.PL (more) so that detection of gettimeofday is
+	  more correct.
+
 1.18  Mon Jul 6 22:40 1998
 	- add usleep() for Win32.
 	- fix Makefile.PL to fix reported HP/UX feature where unresolved

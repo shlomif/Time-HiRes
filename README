@@ -3,6 +3,8 @@ Time::HiRes module: High resolution time, sleep, and alarm.
 Implement usleep, ualarm, and gettimeofday for Perl, as well as wrappers
 to implement time, sleep, and alarm that know about non-integral seconds.
 
+1.19 has better VMS support.
+
 1.18 has limited Win32 support (no ualarm). Added usleep for Win32.
 Probably buggy. I'm sure I'll hear.
 

@@ -11,7 +11,7 @@ require DynaLoader;
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval);
 
-$VERSION = do{my@r=q$Revision: 1.18 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
+$VERSION = do{my@r=q$Revision: 1.19 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
 
 bootstrap Time::HiRes $VERSION;
 
@@ -175,9 +175,12 @@ G. Aas <gisle@aas.no>
 
 =head1 REVISION
 
-$Id: HiRes.pm,v 1.18 1998/07/07 02:41:35 wegscd Exp $
+$Id: HiRes.pm,v 1.19 1998/09/30 02:34:42 wegscd Exp $
 
 $Log: HiRes.pm,v $
+Revision 1.19  1998/09/30 02:34:42  wegscd
+No changes, bump version.
+
 Revision 1.18  1998/07/07 02:41:35  wegscd
 No changes, bump version.
 
