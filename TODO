@@ -1,3 +1,5 @@
-Version 1.16
+Version 1.30
 
-... nothing right now ...
+- interval timers for non-UNIX platforms?
+- any patches that Douglas has stashed away?
+

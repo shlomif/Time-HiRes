@@ -139,10 +139,17 @@ sub unixinit {
     $LIBS = [''] if $Config{'osname'} eq 'linux';
     $LIBS = ['-lm'] if $Config{'osname'} =~ /sco/i;
 
-    if ($Config{'d_gettimeod'} eq 'define') {
-	# do nothing special, everything should be fine
+    print "Looking for gettimeofday()...\n";
+    my $has_gettimeofday;
+    if ($Config{'d_gettimeod'}) {
+	$has_gettimeofday++;
     } elsif (has_gettimeofday) {
 	$DEFINE .= ' -DHAS_GETTIMEOFDAY';
+	$has_gettimeofday++;
+    }
+
+    if ($has_gettimeofday) {
+	print "You have gettimeofday().\n\n";
     } else {
 	die <<EOD
 Your operating system does not seem to have the gettimeofday() function.
@@ -152,15 +159,78 @@ There is no way Time::HiRes is going to work.
 
 I am awfully sorry but I cannot go further.
 
-Aborting configuration
+Aborting configuration.
 
 EOD
     }
 
+    print "Looking for setitimer()...\n";
+    my $has_setitimer;
+    if ($Config{d_setitimer}) {
+        $has_setitimer++;
+    } elsif (has_x("setitimer(ITIMER_REAL, 0, 0)")) {
+        $has_setitimer++;
+        $DEFINE .= ' -DHAS_SETITIMER';
+    }
+
+    if ($has_setitimer) {
+        print "You have setitimer().\n\n";
+    } else {
+	print "No setitimer().\n\n";
+    }
+
+    print "Looking for getitimer()...\n";
+    my $has_getitimer;
+    if ($Config{d_getitimer}) {
+        $has_getitimer++;
+    } elsif (has_x("getitimer(ITIMER_REAL, 0)")) {
+        $has_getitimer++;
+        $DEFINE .= ' -DHAS_GETITIMER';
+    }
+
+    if ($has_getitimer) {
+        print "You have getitimer().\n\n";
+    } else {
+	print "No getitimer().\n\n";
+    }
+
+    if ($has_setitimer && $has_getitimer) {
+	print "You have interval timers.\n\n";
+    } else {
+	print "No interval timers.\n\n";
+    }
+
+    print "Looking for ualarm()...\n";
+    my $has_ualarm; 
+    if ($Config{d_ualarm}) {
+        $has_ualarm++;
+    } elsif (has_x ("ualarm (0, 0)")) {
+        $has_ualarm++;
+	$DEFINE .= ' -DHAS_UALARM';
+    }
+
+    if ($has_ualarm) {
+        print "You have ualarm().\n\n";
+    } else {
+	print "Whoops! No ualarm()!\n";
+	if ($setitimer) {
+	    print "You have setitimer(); we can make a Time::HiRes::ualarm()\n\n";
+	} else {
+	     print "We'll manage.\n\n";
+	}
+    }
+
     print "Looking for usleep()...\n";
-    if (has_x ("usleep (0)")) {
+    my $has_usleep;
+    if ($Config{d_usleep}) {
+	$has_usleep++;
+    } elsif (has_x ("usleep (0)")) {
+	$has_usleep++;
 	$DEFINE .= ' -DHAS_USLEEP';
-	print "You have usleep()\n\n";
+    }
+
+    if ($has_usleep) {
+	print "You have usleep().\n\n";
     } else {
 	print "Whoops! No usleep()! Let's see if you have select().\n";
         if ($Config{'d_select'} eq 'define') {
@@ -170,20 +240,13 @@ EOD
 	}
     }
 
-    print "Looking for ualarm()...\n";
-    if (has_x ("ualarm (0, 0)")) {
-	$DEFINE .= ' -DHAS_UALARM';
-	print "You have ualarm()\n\n";
-    } else {
-	print "Whoops! No ualarm()!\n";
-	if (has_x("setitimer(ITIMER_REAL, 0, 0)")) {
-	    print "You have setitimer(); we can make a Time::HiRes::ualarm()\n\n";
-	    $DEFINE .= ' -DHAS_SETITIMER';
-	} else {
-	     print "We'll manage.\n\n";
-	}
+    if ($DEFINE) {
+        $DEFINE =~ s/^\s+//;
+        if (open(XDEFINE, ">xdefine")) {
+	    print XDEFINE $DEFINE, "\n";
+	    close(XDEFINE);
+        }
     }
-    $DEFINE =~ s/^\s+//;
 }
 
 sub doMakefile {
@@ -197,25 +260,27 @@ EOM
 
     if ($] >= 5.005) {
 	push (@makefileopts,
-	    'AUTHOR'    => 'Doug Wegscheid (wegscd@whirlpool.com)',
-	    'ABSTRACT_FROM' => 'HiRes.pm',
+	    'AUTHOR'    => 'Jarkko Hietaniemi <jhi@iki.fi>',
+	    'ABSTRACT_FROM' => 'lib/Time/HiRes.pm',
 	);
 	$DEFINE .= " -DATLEASTFIVEOHOHFIVE";
     }
 
     push (@makefileopts,
 	'NAME'	=> 'Time::HiRes',
-	'VERSION_FROM' => 'HiRes.pm', # finds $VERSION
+	'VERSION_FROM' => 'lib/Time/HiRes.pm', # finds $VERSION
 	'LIBS'	=> $LIBS,   # e.g., '-lm' 
 	'DEFINE'	=> $DEFINE,     # e.g., '-DHAS_SOMETHING' 
 	'XSOPT'	=> $XSOPT,
     # do not even think about 'INC' => '-I/usr/ucbinclude', Solaris will avenge.
 	'INC'	=> '',     # e.g., '-I/usr/include/other' 
+        'MAN3PODS'  => {},  # Pods will be built by installman.
 	'dist'      => {
-	    'CI'=>'ci -l',
-	    'COMPRESS'=>'gzip -9f', 
-	    'SUFFIX' => 'gz',
+	    'CI'       => 'ci -l',
+	    'COMPRESS' => 'gzip -9f', 
+	    'SUFFIX'   => 'gz',
 	},
+        clean => { FILES => "xdefine" },
     );
 
     WriteMakefile(@makefileopts);
@@ -239,9 +304,9 @@ EOM
     my $make = $Config{'make'} || "make";
 print  <<EOM;
 
-Done configuring
+Done configuring.
 
-Now you may issue '$make'. Do not forget also '$make test'.
+Now you may issue '$make'.  Do not forget also '$make test'.
 
 EOM
 }
