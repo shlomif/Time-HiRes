@@ -164,6 +164,7 @@ typedef struct {
     unsigned __int64 base_ticks;
     unsigned __int64 tick_frequency;
     FT_t base_systime_as_filetime;
+    unsigned __int64 reset_time;
 } my_cxt_t;
 
 START_MY_CXT
@@ -190,6 +191,10 @@ START_MY_CXT
  * move *backwards* in time! */
 #define MAX_PERF_COUNTER_SKEW Const64(5000000) /* 0.5 seconds */
 
+/* Reset reading from the performance counter every five minutes.
+ * Many PC clocks just seem to be so bad. */
+#define MAX_PERF_COUNTER_TICKS Const64(300000000) /* 300 seconds */
+
 static int
 _gettimeofday(pTHX_ struct timeval *tp, void *not_used)
 {
@@ -198,7 +203,15 @@ _gettimeofday(pTHX_ struct timeval *tp, void *not_used)
     unsigned __int64 ticks;
     FT_t ft;
 
-    if (MY_CXT.run_count++) {
+    if (MY_CXT.run_count++ == 0 ||
+	MY_CXT.base_systime_as_filetime.ft_i64 > MY_CXT.reset_time) {
+        QueryPerformanceFrequency((LARGE_INTEGER*)&MY_CXT.tick_frequency);
+        QueryPerformanceCounter((LARGE_INTEGER*)&MY_CXT.base_ticks);
+        GetSystemTimeAsFileTime(&MY_CXT.base_systime_as_filetime.ft_val);
+        ft.ft_i64 = MY_CXT.base_systime_as_filetime.ft_i64;
+	MY_CXT.reset_time = ft.ft_i64 + MAX_PERF_COUNTER_TICKS;
+    }
+    else {
 	__int64 diff;
         QueryPerformanceCounter((LARGE_INTEGER*)&ticks);
         ticks -= MY_CXT.base_ticks;
@@ -211,12 +224,6 @@ _gettimeofday(pTHX_ struct timeval *tp, void *not_used)
             GetSystemTimeAsFileTime(&MY_CXT.base_systime_as_filetime.ft_val);
             ft.ft_i64 = MY_CXT.base_systime_as_filetime.ft_i64;
 	}
-    }
-    else {
-        QueryPerformanceFrequency((LARGE_INTEGER*)&MY_CXT.tick_frequency);
-        QueryPerformanceCounter((LARGE_INTEGER*)&MY_CXT.base_ticks);
-        GetSystemTimeAsFileTime(&MY_CXT.base_systime_as_filetime.ft_val);
-        ft.ft_i64 = MY_CXT.base_systime_as_filetime.ft_i64;
     }
 
     /* seconds since epoch */

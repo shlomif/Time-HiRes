@@ -1,5 +1,11 @@
 Revision history for Perl extension Time::HiRes.
 
+1.61
+	- Win32: reset reading from the performance counters every
+	  five minutes to better track wall clock time (thanks to
+	  PC timers being often quite bad), should help long-running
+	  programs.
+
 1.60
 	- Win32: Patch from Steve Hay
 	  [PATCH] Re: [perl #30755] [Win32] Different results from Time::HiRes::gettimeofdayunder the debugger
