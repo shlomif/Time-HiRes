@@ -1,5 +1,8 @@
 Revision history for Perl extension Time::HiRes.
 
+1.16  Wed Nov 12 21:05 1997
+	- add missing EXTEND in new gettimeofday scalar code.
+
 1.15  Mon Nov 10 21:30 1997
 	- HiRes.pm: update pod. Provided by Gisle Aas.
 	- HiRes.xs: if gettimeofday() called in scalar context, do

@@ -93,6 +93,7 @@ gettimeofday()
              PUSHs(sv_2mortal(newSViv(Tp.tv_sec)));
              PUSHs(sv_2mortal(newSViv(Tp.tv_usec)));
         } else {
+             EXTEND(sp, 1);
              PUSHs(sv_2mortal(newSVnv(Tp.tv_sec + (Tp.tv_usec / 1000000.0))));
         }
 
@@ -109,9 +110,12 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.6 1997/11/11 02:32:35 wegscd Exp $
+# $Id: HiRes.xs,v 1.7 1997/11/13 02:08:12 wegscd Exp wegscd $
 
 # $Log: HiRes.xs,v $
+# Revision 1.7  1997/11/13 02:08:12  wegscd
+# Add missing EXTEND in gettimeofday() scalar code.
+#
 # Revision 1.6  1997/11/11 02:32:35  wegscd
 # Do something useful when calling gettimeofday() in a scalar context.
 # The patch is courtesy of Gisle Aas.
