@@ -6,7 +6,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..13\n"; }
+BEGIN { $| = 1; print "1..14\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use Time::HiRes qw(tv_interval);
 $loaded = 1;
@@ -51,6 +51,8 @@ else {
     ok 2, @one == 2, 'gettimeofday returned ', 0+@one, ' args';
     ok 3, $one[0] > 850_000_000, "@one too small";
 
+    sleep 1;
+
     my @two = gettimeofday();
     ok 4, ($two[0] > $one[0] || ($two[0] == $one[0] && $two[1] > $one[1])),
     	    "@two is not greater than @one";
@@ -77,8 +79,9 @@ else {
     else {
     	my $f = Time::HiRes::time;
 	usleep(500_000);
-	my $d = Time::HiRes::time() - $f;
-	ok 8, $d > 0.4 && $d < 0.8, "slept $d secs";
+        my $f2 = Time::HiRes::time;
+	my $d = $f2 - $f;
+	ok 8, $d > 0.4 && $d < 0.8, "slept $d secs $f to $f2";
     }
 }
 
@@ -125,4 +128,13 @@ else {
     sleep until $tick >= 3;
     ok 13, 1;
     ualarm(0);
+}
+
+# new test: did we even get close?
+
+{
+ my $t = time();
+ my $tf = Time::HiRes::time();
+ ok 14, ($tf >= $t) && (($tf - $t) <= 1),
+  "time $t differs from Time::HiRes::time $tf";
 }

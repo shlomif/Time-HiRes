@@ -1,5 +1,13 @@
 Revision history for Perl extension Time::HiRes.
 
+1.17  Wed Jul 1 20:10 1997
+	- fix setitimer calls so microseconds is not more than 1000000.
+	  Hp/UX 9 doesn't like that. Provided by Roland B Robert, PhD.
+        - make Win32. We only get gettimeofday (the select hack doesn't
+	  seem to work on my Win95 system).
+        - fix test 4 on 01test.t. add test to see if time() and 
+	  Time::HiRes::time() are close.
+
 1.16  Wed Nov 12 21:05 1997
 	- add missing EXTEND in new gettimeofday scalar code.
 

@@ -4,12 +4,49 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#ifdef WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #ifdef __cplusplus
 }
 #endif
 
+#if !defined(HAS_GETTIMEOFDAY) && defined(WIN32)
+#define HAS_GETTIMEOFDAY
+
+/* shows up in winsock.h?
+struct timeval {
+ long tv_sec;
+ long tv_usec;
+}
+*/
+
+int
+gettimeofday (struct timeval *tp, int nothing)
+{
+ SYSTEMTIME st;
+ time_t tt;
+ struct tm tmtm;
+ /* mktime converts local to UTC */
+ GetLocalTime (&st);
+ tmtm.tm_sec = st.wSecond;
+ tmtm.tm_min = st.wMinute;
+ tmtm.tm_hour = st.wHour;
+ tmtm.tm_mday = st.wDay;
+ tmtm.tm_mon = st.wMonth - 1;
+ tmtm.tm_year = st.wYear - 1900;
+ tmtm.tm_isdst = -1;
+ tt = mktime (&tmtm);
+ tp->tv_sec = tt;
+ tp->tv_usec = st.wMilliseconds * 1000;
+ return 1;
+}
+#endif
+
 #if !defined(HAS_USLEEP) && defined(HAS_SELECT)
+#ifndef SELECT_IS_BROKEN
 #define HAS_USLEEP
 
 void
@@ -22,6 +59,7 @@ usleep(unsigned long usec)
 		(Select_fd_set_t)NULL, &tv);
 }
 #endif
+#endif
 
 
 #if !defined(HAS_UALARM) && defined(HAS_SETITIMER)
@@ -31,10 +69,10 @@ int
 ualarm(int usec, int interval)
 {
    struct itimerval itv;
-   itv.it_value.tv_sec = 0;
-   itv.it_value.tv_usec = usec;
-   itv.it_interval.tv_sec = 0;
-   itv.it_interval.tv_usec = interval;
+   itv.it_value.tv_sec = usec / 1000000;
+   itv.it_value.tv_usec = usec % 1000000;
+   itv.it_interval.tv_sec = interval / 1000000;
+   itv.it_interval.tv_usec = interval % 1000000;
    return setitimer(ITIMER_REAL, &itv, 0);
 }
 #endif
@@ -110,9 +148,12 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.7 1997/11/13 02:08:12 wegscd Exp wegscd $
+# $Id: HiRes.xs,v 1.8 1998/07/02 01:47:26 wegscd Exp $
 
 # $Log: HiRes.xs,v $
+# Revision 1.8  1998/07/02 01:47:26  wegscd
+# Add Win32 code for gettimeofday.
+#
 # Revision 1.7  1997/11/13 02:08:12  wegscd
 # Add missing EXTEND in gettimeofday() scalar code.
 #

@@ -108,7 +108,7 @@ EOM
     return 0;
 }
 
-sub init {
+sub unixinit {
     $DEFINE = '';
 
     $LIBS = [''];
@@ -198,7 +198,12 @@ Configuring...
 
 EOM
 
-    init;
+    if ($^O =~ /Win32/i) {
+      $DEFINE = '-DSELECT_IS_BROKEN';
+      $LIBS = [''];
+    } else {
+      unixinit();
+    }
     configure;
     doMakefile;
 print  <<EOM;

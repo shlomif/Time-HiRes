@@ -11,7 +11,7 @@ require DynaLoader;
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval);
 
-$VERSION = do{my@r=q$Revision: 1.16 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
+$VERSION = do{my@r=q$Revision: 1.17 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
 
 bootstrap Time::HiRes $VERSION;
 
@@ -175,9 +175,12 @@ G. Aas <gisle@aas.no>
 
 =head1 REVISION
 
-$Id: HiRes.pm,v 1.16 1997/11/13 02:06:36 wegscd Exp $
+$Id: HiRes.pm,v 1.17 1998/07/02 01:45:13 wegscd Exp $
 
 $Log: HiRes.pm,v $
+Revision 1.17  1998/07/02 01:45:13  wegscd
+Bump version to 1.17
+
 Revision 1.16  1997/11/13 02:06:36  wegscd
 version bump to accomodate HiRes.xs fix.
 
