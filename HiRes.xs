@@ -5,10 +5,14 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#if defined(__CYGWIN__) && defined(HAS_W32API_WINDOWS_H)
+# include <w32api/windows.h>
+# define CYGWIN_WITH_W32API
+#endif
 #ifdef WIN32
-#include <time.h>
+# include <time.h>
 #else
-#include <sys/time.h>
+# include <sys/time.h>
 #endif
 #ifdef HAS_SELECT
 # ifdef I_SYS_SELECT
@@ -117,7 +121,7 @@ sv_2pv_nolen(pTHX_ register SV *sv)
 #endif
 
 /* Though the cpp define ITIMER_VIRTUAL is available the functionality
- * is not supported in Cygwin as of August 2002, ditto for Win32.
+ * is not supported in Cygwin as of August 2004, ditto for Win32.
  * Neither are ITIMER_PROF or ITIMER_REALPROF implemented.  --jhi
  */
 #if defined(__CYGWIN__) || defined(WIN32)
@@ -128,14 +132,14 @@ sv_2pv_nolen(pTHX_ register SV *sv)
 
 /* 5.004 doesn't define PL_sv_undef */
 #ifndef ATLEASTFIVEOHOHFIVE
-#ifndef PL_sv_undef
-#define PL_sv_undef sv_undef
-#endif
+# ifndef PL_sv_undef
+#  define PL_sv_undef sv_undef
+# endif
 #endif
 
 #include "const-c.inc"
 
-#ifdef WIN32
+#if defined(WIN32) || defined(CYGWIN_WITH_W32API)
 
 #ifndef HAS_GETTIMEOFDAY
 #   define HAS_GETTIMEOFDAY
@@ -166,9 +170,9 @@ START_MY_CXT
 
 /* Number of 100 nanosecond units from 1/1/1601 to 1/1/1970 */
 #ifdef __GNUC__
-#define Const64(x) x##LL
+# define Const64(x) x##LL
 #else
-#define Const64(x) x##i64
+# define Const64(x) x##i64
 #endif
 #define EPOCH_BIAS  Const64(116444736000000000)
 
@@ -184,8 +188,7 @@ START_MY_CXT
 /* If the performance counter delta drifts more than 0.5 seconds from the
  * system time then we recalibrate to the system time.  This means we may
  * move *backwards* in time! */
-
-#define MAX_DIFF Const64(5000000)
+#define MAX_PERF_COUNTER_SKEW Const64(5000000) /* 0.5 seconds */
 
 static int
 _gettimeofday(pTHX_ struct timeval *tp, void *not_used)
@@ -197,17 +200,16 @@ _gettimeofday(pTHX_ struct timeval *tp, void *not_used)
 
     if (MY_CXT.run_count++) {
 	__int64 diff;
-	FT_t filtim;
-	GetSystemTimeAsFileTime(&filtim.ft_val);
         QueryPerformanceCounter((LARGE_INTEGER*)&ticks);
         ticks -= MY_CXT.base_ticks;
         ft.ft_i64 = MY_CXT.base_systime_as_filetime.ft_i64
                     + Const64(10000000) * (ticks / MY_CXT.tick_frequency)
                     +(Const64(10000000) * (ticks % MY_CXT.tick_frequency)) / MY_CXT.tick_frequency;
 	diff = ft.ft_i64 - MY_CXT.base_systime_as_filetime.ft_i64;
-	if (diff < -MAX_DIFF || diff > MAX_DIFF) {
-	     MY_CXT.base_ticks = ticks;
-	     ft.ft_i64 = filtim.ft_i64;
+	if (diff < -MAX_PERF_COUNTER_SKEW || diff > MAX_PERF_COUNTER_SKEW) {
+	    MY_CXT.base_ticks += ticks;
+            GetSystemTimeAsFileTime(&MY_CXT.base_systime_as_filetime.ft_val);
+            ft.ft_i64 = MY_CXT.base_systime_as_filetime.ft_i64;
 	}
     }
     else {
@@ -702,7 +704,7 @@ static NV
 myNVtime()
 {
 #ifdef WIN32
-    dTHX;
+  dTHX;
 #endif
   struct timeval Tp;
   int status;
