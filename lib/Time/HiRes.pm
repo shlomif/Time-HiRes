@@ -15,7 +15,7 @@ require DynaLoader;
 		 d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
 		 d_nanosleep);
 	
-$VERSION = '1.35';
+$VERSION = '1.36';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -181,6 +181,12 @@ Implemented using ualarm().  The $interval_floating_seconds argument
 is optional and will be 0 if unspecified, resulting in alarm()-like
 behaviour.  This function can be imported, resulting in a nice drop-in
 replacement for the C<alarm> provided with perl, see the EXAMPLES below.
+
+B<NOTE 1>: With some platform - Perl release combinations select()
+gets restarted by SIGALRM, instead of dropping out of select().
+This means that an alarm() followed by a select() may together take
+the sum of the times specified for the the alarm() and the select(),
+not just the time of the alarm().
 
 =item setitimer 
 

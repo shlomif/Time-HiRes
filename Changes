@@ -1,5 +1,15 @@
 Revision history for Perl extension Time::HiRes.
 
+1.36
+	- do not clear MAN3PODS in Makefile.PL (Radoslaw Zielinski)
+	- INSTALLDIRS => 'perl' missing which means that Time::HiRes
+	  cannot be upgraded from CPAN to override the 5.8.0 version
+	  (Guido A. Ostkamp)
+	- Time::HiRes 1.35 could not be dropped as-is to bleadperl
+	  because the include directories did not adjust themselves
+	  if $ENV{PERL_CORE} (Hugo van der Sanden)
+	- add documentation about the restart of select() under alarm()
+
 1.35
 	- small documentation tweaks
 

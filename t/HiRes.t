@@ -207,7 +207,7 @@ unless (   defined &Time::HiRes::gettimeofday
 	# from the alarm.  If this happens, let's just skip
 	# this particular test.  --jhi
 	if (abs($ival/3.3 - 1) < $limit) {
-	    $ok = "Skip: your select() seems to get restarted by your SIGALRM";
+	    $ok = "Skip: your select() may get restarted by your SIGALRM (or just retry test)";
 	    undef $not;
 	    last;
 	}

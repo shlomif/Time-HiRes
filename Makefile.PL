@@ -8,6 +8,34 @@ require 5.002;
 use Config;
 use ExtUtils::MakeMaker;
 
+# Perls 5.002 and 5.003 did not have File::Spec, fake what we need.
+
+sub my_dirsep {
+    $^O eq 'VMS' ? '.' :
+	$^O =~ /mswin32|netware|djgpp/i ? '\\' :
+	    $^O eq 'MacOS' ? ':'
+		: '/';
+}
+
+sub my_catdir {
+    shift;
+    my $catdir = join(my_dirsep, @_);
+    $^O eq 'VMS' ? "[$dirsep]" : $dirsep;
+}
+
+sub my_updir {
+    shift;
+    $^O eq 'VMS' ? "-" : "..";
+}
+
+BEGIN {
+    eval { require File::Spec };
+    if ($@) {
+	*File::Spec::catdir = \&my_catdir;
+	*File::Spec::updir  = \&my_updir;
+    }
+}
+
 # if you have 5.004_03 (and some slightly older versions?), xsubpp
 # tries to generate line numbers in the C code generated from the .xs.
 # unfortunately, it is a little buggy around #ifdef'd code.
@@ -43,12 +71,22 @@ sub try_compile_and_link {
 
 	my $errornull;
 
-	my $COREincdir = $Config{'archlibexp'} . '/' . 'CORE';
+	my $COREincdir;
+	if ($ENV{PERL_CORE}) {
+	    my $updir = File::Spec->updir;
+	    $COREincdir = File::Spec->catdir(($updir) x 3);
+	} else {
+	    $COREincdir = File::Spec->catdir($Config{'archlibexp'}, 'CORE');
+	}
 	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir";
 	if ($^O eq 'VMS') {
-            my $perl_core = $Config{'installarchlib'};
-            $perl_core =~ s/\]$/.CORE]/;
-            $cccmd = "$Config{'cc'} /include=(perl_root:[000000],$perl_core) $tmp.c"; 
+	    if ($ENV{PERL_CORE}) {
+                $cccmd = "$Config{'cc'} /include=(perl_root:[000000]) $tmp.c"; 
+	    } else {
+		my $perl_core = $Config{'installarchlib'};
+		$perl_core =~ s/\]$/.CORE]/;
+                $cccmd = "$Config{'cc'} /include=(perl_root:[000000],$perl_core) $tmp.c"; 
+	    }
         }
 
         if ($args{silent}) {
@@ -155,6 +193,7 @@ sub unixinit {
     $LIBS = [] if $Config{'osname'} eq 'solaris';
     $LIBS = [] if $Config{'osname'} eq 'linux';
     $LIBS = ['-lm'] if $Config{'osname'} =~ /sco/i;
+    $LIBS = ['-lc'] if $Config{'osname'} =~ /dynixptx/i;
 
     # For nanosleep
     push @$LIBS, '-lrt'		unless $Config{'osname'} =~ /irix/;
@@ -165,7 +204,8 @@ sub unixinit {
     select(STDOUT); $| = 1;
 
     print "Checking for libraries...\n";
-    for my $lib (@$LIBS) {
+    my $lib;
+    for $lib (@$LIBS) {
 	print "Checking for $lib...\n";
 	$LIBS = [ $lib ];
 	if ($Config{$libs =~ /\b$lib\b/} || has_x("time(0)", silent => 1)) {
@@ -234,9 +274,9 @@ EOD
     }
 
     if ($has_setitimer && $has_getitimer) {
-	print "You have interval timers.\n\n";
+	print "You have interval timers (both setitimer and setitimer).\n\n";
     } else {
-	print "No interval timers.\n\n";
+	print "You do not have interval timers.\n\n";
     }
 
     print "Looking for ualarm()...\n";
@@ -322,7 +362,7 @@ sub doMakefile {
 	'XSOPT'	=> $XSOPT,
     # do not even think about 'INC' => '-I/usr/ucbinclude', Solaris will avenge.
 	'INC'	=> '',     # e.g., '-I/usr/include/other' 
-        'MAN3PODS'  => {},  # Pods will be built by installman.
+	'INSTALLDIRS' => 'perl',
 	'dist'      => {
 	    'CI'       => 'ci -l',
 	    'COMPRESS' => 'gzip -9f', 
@@ -350,13 +390,15 @@ EOM
     configure;
     doMakefile;
     my $make = $Config{'make'} || "make";
-print  <<EOM;
+    unless ($ENV{PERL_CORE}) {
+	print  <<EOM;
 
 Done configuring.
 
 Now you may issue '$make'.  Do not forget also '$make test'.
 
 EOM
+    }
 }
 
 &main;
