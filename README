@@ -1,0 +1,10 @@
+Time::HiRes module: High resolution time, sleep, and alarm.
+
+Implement usleep, ualarm, and gettimeofday for Perl, as well as wrappers
+to implement time, sleep, and alarm that know about non-integral seconds.
+
+POD documentation is embedded.
+
+Copyright (c) 1996 Douglas E. Wegscheid.
+All rights reserved. This program is free software; you can 
+redistribute it and/or modify it under the same terms as Perl itself.
