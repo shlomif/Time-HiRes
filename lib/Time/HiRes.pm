@@ -15,7 +15,7 @@ require DynaLoader;
 		 d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
 		 d_nanosleep);
 	
-$VERSION = '1.33';
+$VERSION = '1.34';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -102,8 +102,9 @@ compile time.
 If your subsecond sleeping is implemented with nanosleep() instead of
 usleep(), you can mix subsecond sleeping with signals since nanosleep()
 does not use signals.  This, however, is unportable behavior, and you
-should first for C<&Time::HiRes::d_nanosleep> to see whether you have
-nanosleep, and then read carefully your nanosleep C API documentation.
+should first check for the truth of C<&Time::HiRes::d_nanosleep> to see
+whether you have nanosleep, and then read carefully your nanosleep()
+C API documentation.
 
 The following functions can be imported from this module.
 No functions are exported by default.

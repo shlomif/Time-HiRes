@@ -1,5 +1,8 @@
 Revision history for Perl extension Time::HiRes.
 
+1.34
+	- better VMS operation (Craig Berry)
+
 1.33
 	- our time machine is accelerating: now works with Perl 5.004_01
 	  (tried with 5.003_07 and 5.002 but I get segmentation faults

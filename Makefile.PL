@@ -29,7 +29,7 @@ sub try_compile_and_link {
     my ($c, %args) = @_;
 
     my ($ok) = 0;
-    my ($tmp) = ($^O eq 'VMS') ? "tmp$$" : TMPDIR . '/' . "tmp$$";
+    my ($tmp) = (($^O eq 'VMS') ? "sys\$scratch:tmp$$" : TMPDIR . '/' . "tmp$$");
     local(*TMPC);
 
     my $obj_ext = $Config{obj_ext} || ".o";
@@ -52,20 +52,28 @@ sub try_compile_and_link {
         }
 
         if ($args{silent}) {
-	    $errornull = "2>/dev/null" unless defined $erronull;
+	    $errornull = "2>/dev/null" unless defined $errornull;
 	} else {
 	    $errornull = '';
 	}
 
 	$cccmd = "$Config{'cc'} -o $tmp $ccflags $tmp.c @$LIBS $errornull"
 	    unless defined $cccmd;
-	system($cccmd);
 	if ($^O eq 'VMS') {
-	    $ok = -s "$tmp$obj_ext" && -x _;
-	    unlink("$tmp.c", "$tmp$obj_ext");
+	    open( CMDFILE, ">$tmp.com" );
+	    print CMDFILE "\$ SET MESSAGE/NOFACILITY/NOSEVERITY/NOIDENT/NOTEXT\n";
+	    print CMDFILE "\$ $cccmd\n";
+	    print CMDFILE "\$ IF \$SEVERITY .NE. 1 THEN EXIT 44\n";  # escalate
+	    close CMDFILE;
+	    system("\@ $tmp.com");
+	    $ok = $?==0;
+	    for ("$tmp.c", "$tmp$obj_ext", "$tmp.com", "$tmp$Config{exe_ext}") { 
+		1 while unlink $_; 
+	    }
         }
         else
         {
+	    system($cccmd);
 	    $ok = -s $tmp && -x _;
 	    unlink("$tmp.c", $tmp);
         }
