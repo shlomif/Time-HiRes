@@ -20,6 +20,7 @@ extern "C" {
 
 #ifndef aTHX_
 #    define aTHX_
+#    define pTHX_
 #endif         
 
 #ifndef NVTYPE
@@ -54,6 +55,39 @@ typedef NVTYPE NV;
 #   endif
 #endif
 
+#ifndef INT2PTR
+
+#if (IVSIZE == PTRSIZE) && (UVSIZE == PTRSIZE)
+#  define PTRV                  UV
+#  define INT2PTR(any,d)        (any)(d)
+#else
+#  if PTRSIZE == LONGSIZE
+#    define PTRV                unsigned long
+#  else
+#    define PTRV                unsigned
+#  endif
+#  define INT2PTR(any,d)        (any)(PTRV)(d)
+#endif
+#define PTR2IV(p)       INT2PTR(IV,p)
+
+#endif /* !INT2PTR */
+
+#ifndef SvPV_nolen
+static char *
+sv_2pv_nolen(pTHX_ register SV *sv)
+{
+    STRLEN n_a;
+    return sv_2pv(sv, &n_a);
+}
+#   define SvPV_nolen(sv) \
+        ((SvFLAGS(sv) & (SVf_POK)) == SVf_POK \
+         ? SvPVX(sv) : sv_2pv_nolen(sv))
+#endif
+
+#ifndef PerlProc_pause
+#   define PerlProc_pause() Pause()
+#endif
+
 /* Though the cpp define ITIMER_VIRTUAL is available the functionality
  * is not supported in Cygwin as of August 2002, ditto for Win32.
  * Neither are ITIMER_PROF or ITIMER_REALPROF implemented.  --jhi
@@ -69,6 +103,38 @@ constant(char *name, int arg)
 {
     errno = 0;
     switch (*name) {
+    case 'd':
+      if (strEQ(name, "d_getitimer"))
+#ifdef HAS_GETITIMER
+	return 1;
+#else
+	return 0;
+#endif
+      if (strEQ(name, "d_nanosleep"))
+#ifdef HAS_NANOSLEEP
+	return 1;
+#else
+	return 0;
+#endif
+      if (strEQ(name, "d_setitimer"))
+#ifdef HAS_SETITIMER
+	return 1;
+#else
+	return 0;
+#endif
+      if (strEQ(name, "d_ualarm"))
+#ifdef HAS_UALARM
+	return 1;
+#else
+	return 0;
+#endif
+      if (strEQ(name, "d_usleep"))
+#ifdef HAS_USLEEP
+	return 1;
+#else
+	return 0;
+#endif
+      break;
     case 'I':
       if (strEQ(name, "ITIMER_REAL"))
 #ifdef ITIMER_REAL
@@ -332,6 +398,22 @@ gettimeofday (struct timeval *tp, void *tpz)
  return 0;
 }
 #endif
+
+
+#if !defined(HAS_USLEEP) && defined(HAS_NANOSLEEP)
+#define HAS_USLEEP
+#define usleep hrt_nanosleep  /* could conflict with ncurses for static build */
+
+void
+hrt_nanosleep(unsigned long usec)
+{
+    struct timespec res;
+    res.tv_sec = usec/1000/1000;
+    res.tv_nsec = ( usec - res.tv_sec*1000*1000 ) * 1000;
+    nanosleep(&res, NULL);
+}
+#endif
+
 
 #if !defined(HAS_USLEEP) && defined(HAS_SELECT)
 #ifndef SELECT_IS_BROKEN

@@ -1,5 +1,20 @@
 Revision history for Perl extension Time::HiRes.
 
+1.32
+	- backward compatibility (pre-5.6.0) tweaks:
+	  - no XSLoader in 5.00503, use DynaLoader instead
+	  - no SvPV_nolen, either
+	  - no PerlProc_pause(), either
+	  - now tested with 5.00404 and 5.00503
+	  - Makefile.PL requires 5.00404 (no more 5.002)
+	- use nanosleep instead of usleep, if it is available (Wilson Snyder)
+	  (this means that one can mix subsecond sleeps with alarms)
+	- because of nanosleep we probe for -lrt and -lposix4
+	- the existence of getitimer/nanosleep/setitimer/ualarm/usleep
+	  is available by exportable constants Time::HiRes::d_func
+	  (since older Perl do not have them in %Config, and even
+	   5.8.0 does not probe for nanosleep)
+
 1.31
 	- backward compatibility (pre-5.6.1) tweaks:
 	  - define NV if no NVTYPE

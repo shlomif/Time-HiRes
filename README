@@ -3,6 +3,9 @@ Time::HiRes module: High resolution time, sleep, and alarm.
 Implement usleep, ualarm, and gettimeofday for Perl, as well as wrappers
 to implement time, sleep, and alarm that know about non-integral seconds.
 
+1.31 and 1.32 add more backward compatibility (now all the way back to
+Perl 5.00404), and using nanosleep() (if available) for subsecond sleeps.
+
 1.30 adds all the changes made during the Perl 5.6->5.7->5.8 development
 cycle.  Most notably portability across platforms has been enhanced,
 and the interval timers (setitimer, getitimer) have been added.

@@ -268,7 +268,8 @@ unless (   defined &Time::HiRes::setitimer
     print "# getitimer: ", join(" ", getitimer(ITIMER_VIRTUAL)), "\n";
 
     while (getitimer(ITIMER_VIRTUAL)) {
-	my $j; $j++ for 1..1000; # Can't be unbreakable, must test getitimer().
+	my $j;
+	for (1..1000) { $j++ } # Can't be unbreakable, must test getitimer().
     }
 
     print "# getitimer: ", join(" ", getitimer(ITIMER_VIRTUAL)), "\n";

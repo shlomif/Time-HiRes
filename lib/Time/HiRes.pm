@@ -4,16 +4,18 @@ use strict;
 use vars qw($VERSION $XS_VERSION @ISA @EXPORT @EXPORT_OK $AUTOLOAD);
 
 require Exporter;
-use XSLoader;
+require DynaLoader;
 
-@ISA = qw(Exporter);
+@ISA = qw(Exporter DynaLoader);
 
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 getitimer setitimer
-		 ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF ITIMER_REALPROF);
-
-$VERSION = '1.31';
+		 ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF ITIMER_REALPROF
+		 d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
+		 d_nanosleep);
+	
+$VERSION = '1.32';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -32,7 +34,7 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-XSLoader::load 'Time::HiRes', $XS_VERSION;
+bootstrap Time::HiRes;
 
 # Preloaded methods go here.
 
@@ -86,15 +88,22 @@ Time::HiRes - High resolution alarm, sleep, gettimeofday, interval timers
 The C<Time::HiRes> module implements a Perl interface to the usleep,
 ualarm, gettimeofday, and setitimer/getitimer system calls. See the
 EXAMPLES section below and the test scripts for usage; see your system
-documentation for the description of the underlying usleep, ualarm,
-gettimeofday, and setitimer/getitimer calls.
+documentation for the description of the underlying nanosleep or usleep,
+ualarm, gettimeofday, and setitimer/getitimer calls.
 
 If your system lacks gettimeofday(2) or an emulation of it you don't
 get gettimeofday() or the one-arg form of tv_interval().
-If you don't have usleep(3) or select(2) you don't get usleep()
-or sleep().  If your system don't have ualarm(3) or setitimer(2) you
-don't get ualarm() or alarm().  If you try to import an unimplemented
-function in the C<use> statement it will fail at compile time.
+If you don't have nanosleep() or usleep(3) or select(2) you don't get
+usleep() or sleep().  If your system don't have ualarm(3) or
+setitimer(2) you don't get ualarm() or alarm().  If you try to import
+an unimplemented function in the C<use> statement it will fail at
+compile time.
+
+If your subsecond sleeping is implemented with nanosleep() instead of
+usleep(), you can mix subsecond sleeping with signals since nanosleep()
+does not use signals.  This, however, is unportable behavior, and you
+should first for C<&Time::HiRes::d_nanosleep> to see whether you have
+nanosleep, and then read carefully your nanosleep C API documentation.
 
 The following functions can be imported from this module.
 No functions are exported by default.

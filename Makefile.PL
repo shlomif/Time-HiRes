@@ -3,7 +3,7 @@
 # the contents of the Makefile that is written.
 #
 
-require 5.002;
+require 5.00404;
 
 use Config;
 use ExtUtils::MakeMaker;
@@ -29,7 +29,7 @@ sub TMPDIR {
 }
 
 sub try_compile_and_link {
-    my ($c, $cccmd) = @_;
+    my ($c, %args) = @_;
 
     my ($ok) = 0;
     my ($tmp) = ($^O eq 'VMS') ? "tmp$$" : TMPDIR . '/' . "tmp$$";
@@ -41,6 +41,11 @@ sub try_compile_and_link {
     if (open(TMPC, ">$tmp.c")) {
 	print TMPC $c;
 	close(TMPC);
+
+	$cccmd = $args{cccmd};
+
+	my $errornull;
+
 	my $COREincdir = $Config{'archlibexp'} . '/' . 'CORE';
 	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir";
 	if ($^O eq 'VMS') {
@@ -48,8 +53,15 @@ sub try_compile_and_link {
             $perl_core =~ s/\]$/.CORE]/;
             $cccmd = "$Config{'cc'} /include=(perl_root:[000000],$perl_core) $tmp.c"; 
         }
-	$cccmd = "$Config{'cc'} -o $tmp $ccflags $tmp.c @$LIBS"
-	 unless (defined $cccmd);
+
+        if ($args{silent}) {
+	    $errornull = "2>/dev/null" unless defined $erronull;
+	} else {
+	    $errornull = '';
+	}
+
+	$cccmd = "$Config{'cc'} -o $tmp $ccflags $tmp.c @$LIBS $errornull"
+	    unless defined $cccmd;
 	system($cccmd);
 	if ($^O eq 'VMS') {
 	    $ok = -s "$tmp$obj_ext" && -x _;
@@ -97,10 +109,10 @@ EOM
 }
 
 sub has_x {
-    my ($x) = @_; 
+    my ($x, %args) = @_; 
 
     return 1 if
-    try_compile_and_link(<<EOM);
+    try_compile_and_link(<<EOM, %args);
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -128,22 +140,44 @@ EOM
 sub unixinit {
     $DEFINE = '';
 
-    $LIBS = [''];
+    $LIBS = [];
 
     # this might break the link, try it if it can't find some things you 
     # honestly think should be in there...
     # $LIBS = ['-lucb -lbsd'];
 
     # ... but ucb is poison for Solaris, and probably Linux. honest.
-    $LIBS = [''] if $Config{'osname'} eq 'solaris';
-    $LIBS = [''] if $Config{'osname'} eq 'linux';
+    $LIBS = [] if $Config{'osname'} eq 'solaris';
+    $LIBS = [] if $Config{'osname'} eq 'linux';
     $LIBS = ['-lm'] if $Config{'osname'} =~ /sco/i;
+
+    # For nanosleep
+    push @$LIBS, '-lrt'		unless $Config{'osname'} =~ /irix/;
+    push @$LIBS, '-lposix4'	;
+
+    my @goodlibs;
+
+    select(STDOUT); $| = 1;
+
+    print "Checking for libraries...\n";
+    for my $lib (@$LIBS) {
+	print "Checking for $lib...\n";
+	$LIBS = [ $lib ];
+	if ($Config{$libs =~ /\b$lib\b/} || has_x("time(0)", silent => 1)) {
+	    push @goodlibs, $lib;
+	}
+    }
+    @$LIBS = @goodlibs;
+    print @$LIBS ?
+	  "You have extra libraries: @$LIBS.\n" :
+          "You have no extra libraries.\n";
+    print "\n";
 
     print "Looking for gettimeofday()...\n";
     my $has_gettimeofday;
     if ($Config{'d_gettimeod'}) {
 	$has_gettimeofday++;
-    } elsif (has_gettimeofday) {
+    } elsif (has_gettimeofday()) {
 	$DEFINE .= ' -DHAS_GETTIMEOFDAY';
 	$has_gettimeofday++;
     }
@@ -240,6 +274,21 @@ EOD
 	}
     }
 
+    print "Looking for nanosleep()...\n";
+    my $has_nanosleep;
+    if ($Config{d_nanosleep}) {
+	$has_nanosleep++;
+    } elsif (has_x ("nanosleep (NULL, NULL)")) {
+	$has_nanosleep++;
+	$DEFINE .= ' -DHAS_NANOSLEEP';
+    }
+
+    if ($has_nanosleep) {
+	print "You have nanosleep().  You can mix subsecond sleeps with signals.\n\n";
+    } else {
+	print "Whoops! No nanosleep()!  You cannot mix subsecond sleeps with signals.\n";
+    }
+
     if ($DEFINE) {
         $DEFINE =~ s/^\s+//;
         if (open(XDEFINE, ">xdefine")) {
@@ -250,12 +299,6 @@ EOD
 }
 
 sub doMakefile {
-    print <<EOM if ($$LIBS[0] ne '');
-Looking for libraries...
-Note: it is ok if none of the libraries '@$LIBS' is found.
-
-EOM
-
     @makefileopts = ();
 
     if ($] >= 5.005) {
@@ -289,7 +332,7 @@ EOM
 sub main {
     print <<EOM;
 
-Configuring...
+Configuring Time::HiRes...
 
 EOM
 
