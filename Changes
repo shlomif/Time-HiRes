@@ -1,5 +1,17 @@
 Revision history for Perl extension Time::HiRes.
 
+1.31
+	- backward compatibility (pre-5.6.1) tweaks:
+	  - define NV if no NVTYPE
+	  - define IVdf if needed (note: the Devel::PPPort
+	    in 5.8.0 does not try hard hard enough since
+	    the IVSIZE might not be defined)
+	  - define NVgf if needed
+	  - grab the typemap from 5.8.0 for the NV stuff
+1.30
+
+	- release 1.29_02 as 1.30
+
 1.29_02
 
 	- fix a silly unclosed comment typo in HiRes.xs

@@ -13,7 +13,7 @@ use XSLoader;
 		 getitimer setitimer
 		 ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF ITIMER_REALPROF);
 
-$VERSION = '1.30';
+$VERSION = '1.31';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 

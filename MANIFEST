@@ -8,3 +8,4 @@ Makefile.PL		Time::HiRes extension
 MANIFEST		Time::HiRes extension
 README			Time::HiRes extension
 TODO			Time::HiRes extension
+typemap			Time::HiRes extension

@@ -18,6 +18,42 @@ extern "C" {
 }
 #endif
 
+#ifndef aTHX_
+#    define aTHX_
+#endif         
+
+#ifndef NVTYPE
+#   if defined(USE_LONG_DOUBLE) && defined(HAS_LONG_DOUBLE)
+#       define NVTYPE long double
+#   else
+#       define NVTYPE double
+#   endif
+typedef NVTYPE NV;
+#endif
+
+#ifndef IVdf
+#  ifdef IVSIZE
+#      if IVSIZE == LONGSIZE
+#           define	IVdf		"ld"
+#       else
+#           if IVSIZE == INTSIZE
+#               define	IVdf	"d"
+#           endif
+#       endif
+#   else
+#       define	IVdf	"ld"
+#   endif
+#endif
+
+#ifndef NVef
+#   if defined(USE_LONG_DOUBLE) && defined(HAS_LONG_DOUBLE) && \
+	defined(PERL_PRIgldbl) /* Not very likely, but let's try anyway. */ 
+#       define NVgf		PERL_PRIgldbl
+#   else
+#       define NVgf		"g"
+#   endif
+#endif
+
 /* Though the cpp define ITIMER_VIRTUAL is available the functionality
  * is not supported in Cygwin as of August 2002, ditto for Win32.
  * Neither are ITIMER_PROF or ITIMER_REALPROF implemented.  --jhi
@@ -540,8 +576,6 @@ ualarm_AST(Alarm *a)
 }
 
 #endif /* !HAS_UALARM && VMS */
-
-
 
 #ifdef HAS_GETTIMEOFDAY
 
