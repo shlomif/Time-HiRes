@@ -10,9 +10,10 @@ use XSLoader;
 
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
-		 getitimer setitimer ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF);
+		 getitimer setitimer
+		 ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF ITIMER_REALPROF);
 
-$VERSION = '1.29_01';
+$VERSION = '1.29_02';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -75,7 +76,7 @@ Time::HiRes - High resolution alarm, sleep, gettimeofday, interval timers
   alarm ($floating_seconds, $floating_interval);
 
   use Time::HiRes qw( setitimer getitimer
-		      ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF );
+		      ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF ITIMER_REALPROF );
 
   setitimer ($which, $floating_seconds, $floating_interval );
   getitimer ($which);
@@ -183,10 +184,12 @@ In scalar context, the remaining time in the timer is returned.
 
 In list context, both the remaining time and the interval are returned.
 
-There are three interval timers: the $which can be ITIMER_REAL,
-ITIMER_VIRTUAL, or ITIMER_PROF.  Note that which ones are available
-depends: true UNIX platforms have usually all of them, but for example
-Win32 and Cygwin only have ITIMER_REAL.
+There are usually three or four interval timers available: the $which
+can be ITIMER_REAL, ITIMER_VIRTUAL, ITIMER_PROF, or ITIMER_REALPROF.
+Note that which ones are available depends: true UNIX platforms have
+usually all first three, but for example Win32 and Cygwin only have
+ITIMER_REAL, and only Solaris seems to have ITIMER_REALPROF (which is
+used to profile multithreaded programs).
 
 ITIMER_REAL results in alarm()-like behavior.  Time is counted in
 I<real time>, that is, wallclock time.  SIGALRM is delivered when

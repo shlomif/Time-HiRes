@@ -242,7 +242,7 @@ unless (   defined &Time::HiRes::gettimeofday
 
 unless (   defined &Time::HiRes::setitimer
 	&& defined &Time::HiRes::getitimer
-	&& exists  &Time::HiRes::ITIMER_VIRTUAL
+	&& eval    'Time::HiRes::ITIMER_VIRTUAL'
 	&& $Config{d_select}
 	&& $Config{sig_name} =~ m/\bVTALRM\b/) {
     for (18..19) {

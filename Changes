@@ -1,13 +1,15 @@
 Revision history for Perl extension Time::HiRes.
 
+1.29_02
+
+	- fix a silly unclosed comment typo in HiRes.xs
+	- document and export REALTIME_REALPROF (Solaris)
+
 1.29_01
 
-	- getitimer(ITIMER_VIRTUAL) cygwin and win32
-	- remove CVS revision log from HiRes.xs
-	- #undef ITIMER_VIRTUAL in Cygwin and Win32 since
-	  the functionality isn't there: when the functionality
-	  gets there we can start playing with release levels
+	- only getitimer(ITIMER_REAL) available in Cygwin and Win32
 	  (need to patch this also in Perl 5.[89])
+	- remove CVS revision log from HiRes.xs
 
 1.29_00
 

@@ -19,10 +19,13 @@ extern "C" {
 #endif
 
 /* Though the cpp define ITIMER_VIRTUAL is available the functionality
- * is not supported in Cygwin as of August 2002, ditto for Win32. --jhi
- * /
+ * is not supported in Cygwin as of August 2002, ditto for Win32.
+ * Neither are ITIMER_PROF or ITIMER_REALPROF implemented.  --jhi
+ */
 #if defined(__CYGWIN__) || defined(WIN32)
 #   undef ITIMER_VIRTUAL
+#   undef ITIMER_PROF
+#   undef ITIMER_REALPROF
 #endif
 
 static IV
