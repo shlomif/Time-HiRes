@@ -1,5 +1,8 @@
 Revision history for Perl extension Time::HiRes.
 
+1.54
+	- Solaris: like Tru64 (dec_osf) also Solaris need -lrt for nanosleep
+
 1.53
 	- Windows: higher resolution time() by using the Windows
 	  performance counter API, from Jan Dubois and Anton Shcherbinin.
