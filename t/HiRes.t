@@ -168,22 +168,20 @@ else {
     my $tick = 0;
     local $SIG{ALRM} = sub { $tick++ };
 
-    my $one = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep }
-    my $two = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep }
+    my $one = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep(1) }
+    my $two = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep(1) }
     my $three = time;
     ok 12, $one == $two || $two == $three, "slept too long, $one $two $three";
 
-    $tick = 0;
-    ualarm(10_000, 10_000);
-    while ($tick < 3) { sleep }
+    $tick = 0; ualarm(10_000, 10_000); while ($tick < 3) { sleep(1) }
     ok 13, 1;
     ualarm(0);
 }
 
-# new test: did we even get close?
+# Did we even get close?
 
 if (!$have_time) {
-    skip 14
+    skip 14;
 } else {
  my ($s, $n, $i) = (0);
  for $i (1 .. 100) {
