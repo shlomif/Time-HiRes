@@ -1,5 +1,11 @@
 Revision history for Perl extension Time::HiRes.
 
+1.38
+	- no functional changes
+	- move lib/Time/HiRes.pm as Hires.pm
+	- libraries scanning was slightly broken (always scanned
+	  for a library even when $Config{libs} already had it)
+
 1.37
 	- Ray Zimmerman ran into a race condition in Mac OS X.
 	  A 0.01-second alarm fired before the test expected.

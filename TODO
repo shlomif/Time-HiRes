@@ -1,4 +1,4 @@
-Version 1.32
+Version 1.38
 
 - interval timers for non-UNIX platforms?
 - nanosleep for non-UNIX platforms (that do not have usleep?)

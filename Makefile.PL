@@ -211,7 +211,7 @@ sub unixinit {
     for $lib (@$LIBS) {
 	print "Checking for $lib...\n";
 	$LIBS = [ $lib ];
-	if ($Config{$libs =~ /\b$lib\b/} || has_x("time(0)")) {
+	if ($Config{libs} =~ /\b$lib\b/ || has_x("time(0)")) {
 	    push @goodlibs, $lib;
 	}
     }
@@ -352,14 +352,14 @@ sub doMakefile {
     if ($] >= 5.005) {
 	push (@makefileopts,
 	    'AUTHOR'    => 'Jarkko Hietaniemi <jhi@iki.fi>',
-	    'ABSTRACT_FROM' => 'lib/Time/HiRes.pm',
+	    'ABSTRACT_FROM' => 'HiRes.pm',
 	);
 	$DEFINE .= " -DATLEASTFIVEOHOHFIVE";
     }
 
     push (@makefileopts,
 	'NAME'	=> 'Time::HiRes',
-	'VERSION_FROM' => 'lib/Time/HiRes.pm', # finds $VERSION
+	'VERSION_FROM' => 'HiRes.pm', # finds $VERSION
 	'LIBS'	=> $LIBS,   # e.g., '-lm' 
 	'DEFINE'	=> $DEFINE,     # e.g., '-DHAS_SOMETHING' 
 	'XSOPT'	=> $XSOPT,
