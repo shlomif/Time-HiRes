@@ -4,6 +4,11 @@ BEGIN {
     if ($ENV{PERL_CORE}) {
 	chdir 't' if -d 't';
 	@INC = '../lib';
+	require Config; import Config;
+	if (" $Config{'extensions'} " !~ m[ Time/HiRes ]) {
+	    print "1..0 # Skip -- Perl configured without Time::HiRes module\n";
+	    exit 0;
+	}
     }
 }
 
@@ -180,8 +185,8 @@ else {
 if (!$have_time) {
     skip 14
 } else {
- my ($s, $n);
- for my $i (1 .. 100) {
+ my ($s, $n, $i) = (0);
+ for $i (1 .. 100) {
      $s += Time::HiRes::time() - time();
      $n++;
  }
