@@ -3,13 +3,10 @@
 # the contents of the Makefile that is written.
 #
 
-require 5.00404;
+require 5.002;
 
 use Config;
 use ExtUtils::MakeMaker;
-
-# comment the following if xsubpp complains about bad usage.
-$XSOPT = '-nolinenumbers'; 
 
 # if you have 5.004_03 (and some slightly older versions?), xsubpp
 # tries to generate line numbers in the C code generated from the .xs.

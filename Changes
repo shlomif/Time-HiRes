@@ -1,5 +1,10 @@
 Revision history for Perl extension Time::HiRes.
 
+1.33
+	- our time machine is accelerating: now works with Perl 5.004_01
+	  (tried with 5.003_07 and 5.002 but I get segmentation faults
+	   from running the Makefile.PL with those in Tru64 4.0D)
+
 1.32
 	- backward compatibility (pre-5.6.0) tweaks:
 	  - no XSLoader in 5.00503, use DynaLoader instead
