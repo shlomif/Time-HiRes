@@ -15,7 +15,7 @@ require DynaLoader;
 		 d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
 		 d_nanosleep);
 	
-$VERSION = '1.57';
+$VERSION = '1.58';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -329,8 +329,17 @@ become negative just became negative.  Maybe your compiler is broken?
 =head1 CAVEATS
 
 Notice that the core C<time()> maybe rounding rather than truncating.
-What this means is that the core C<time()> may be reporting the time as one second
-later than C<gettimeofday()> and C<Time::HiRes::time()>.
+What this means is that the core C<time()> may be reporting the time
+as one second later than C<gettimeofday()> and C<Time::HiRes::time()>.
+
+In Win32 the high resolution of Time::HiRes::time() is achieved by
+using the Win32 "performance counters".  These counters are actually
+independent of the system clock: this means that if the system clock
+is somehow adjusted, either manually or in an automated way (e.g. by ntp),
+the Time::HiRes::time() may drift away from the system clock.  If the drift
+grows larger than two seconds, Time::HiRes::time() will automatically
+resynchronize itself with the system clock.  This caveat applies also
+to Cygwin and MinGW since they use the same underlying Win32 timers.
 
 =head1 AUTHORS
 
