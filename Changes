@@ -2,3 +2,13 @@ Revision history for Perl extension Time::HiRes.
 
 1.00  Tue Sep 03 13:00:00 1996
 	- original version; created by h2xs 1.16
+
+1.01  Fri Oct 17 08:00:00 1996
+	- Makefile.PL: make XSPROTOARGS => '-noprototyopes'
+	- HiRes.pm: put blank line between __END__ and =head1 so that 
+	  pod2man works.
+
+1.02  Mon Dec 30 08:00:00 1006
+	- HiRes.pm: update documentation to say what to do when missing
+	  ualarm() and friends.
+	- README: update to warn that ualarm() and friends need to exist

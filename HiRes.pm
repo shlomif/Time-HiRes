@@ -11,7 +11,7 @@ require DynaLoader;
 @EXPORT = qw( );
 @EXPORT_OK = qw (time alarm sleep);
 
-( $VERSION ) = '$Revision: 1.1 $ ' =~ /\$Revision\:\s+([^\s]+)/; $VERSION = join(".", map { $_ = sprintf ("%2.2d", $_) } split (/\./, $VERSION));
+( $VERSION ) = '$Revision: 1.2 $ ' =~ /\$Revision\:\s+([^\s]+)/; $VERSION = join(".", map { $_ = sprintf ("%2.2d", $_) } split (/\./, $VERSION));
 
 bootstrap Time::HiRes $VERSION;
 
@@ -73,6 +73,10 @@ The C<Time::HiRes> package implements a Perl interface to usleep, ualarm,
 and gettimeofday system calls. See the EXAMPLES section below and the test
 scripts for usage; see your system documentation for the description of
 the underlying gettimeofday, usleep, and ualarm calls.
+
+Note that if your system does not implement usleep(), ualarm(), and
+gettimeofday(), you will not be able to use this module. If you are in 
+this situation, see MISSING UALARM() AND FRIENDS below.
 
 =item gettimeofday
 
@@ -157,15 +161,31 @@ D. Wegscheid <wegscd@whirlpool.com>
 
 =head1 REVISION
 
-$Id: HiRes.pm,v 1.1 1996/10/17 20:53:31 wegscd Exp $
+$Id: HiRes.pm,v 1.2 1996/12/30 13:28:40 wegscd Exp $
 
 $Log: HiRes.pm,v $
+Revision 1.2  1996/12/30 13:28:40  wegscd
+Update documentation for what to do when missing ualarm() and friends.
+
 Revision 1.1  1996/10/17 20:53:31  wegscd
 Fix =head1 being next to __END__ so pod2man works
 
 Revision 1.0  1996/09/03 18:25:15  wegscd
 Initial revision
 
+=head1 MISSING UALARM() AND FRIENDS
+
+If you have a system that does not have ualarm(), usleep(), and
+gettimeofday(), and you want to see this module work with it, you have
+two options: modify the source code to work with your system, or get me
+access to your system to do it (no promises about timeliness on this one!). 
+
+I have received mail from HP-UX, Linux, and Solaris users in this boat,
+and it's hard for me to tell if it's a simple problem of not having
+the correct libraries installed or if the routines are missing altogether.
+
+If you make changes, let me know so they can be integrated back into the 
+source so other users can benefit from your work. Thanks...
 
 =head1 COPYRIGHT
 

@@ -3,6 +3,11 @@ Time::HiRes module: High resolution time, sleep, and alarm.
 Implement usleep, ualarm, and gettimeofday for Perl, as well as wrappers
 to implement time, sleep, and alarm that know about non-integral seconds.
 
+Note that your underlying operating system must have the usleep(),
+ualarm(), and gettimeofday() routines, or you will get "Undefined
+externals" messages when building or testing this. I *may* be able to
+help in this case, see the documentation.
+
 POD documentation is embedded.
 
 Copyright (c) 1996 Douglas E. Wegscheid.
