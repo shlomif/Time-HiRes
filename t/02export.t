@@ -3,16 +3,6 @@
 
 ######################### We start with some black magic to print on failure.
 
-BEGIN {
-    require Time::HiRes;
-    unless (defined &Time::HiRes::gettimeofday
-	    && defined &Time::HiRes::ualarm
-	    && defined &Time::HiRes::usleep) {
-    	print "1..0\n";
-	exit;
-    }
-}
-
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 

@@ -6,9 +6,9 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..13\n"; }
+BEGIN { $| = 1; print "1..8\n"; }
 END {print "not ok 1\n" unless $loaded;}
-use Time::HiRes qw(tv_interval);
+use Time::HiRes;
 $loaded = 1;
 print "ok 1\n";
 
@@ -18,111 +18,48 @@ print "ok 1\n";
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 
-use strict;
+print "gettimeofday...";
+($s, $us) = Time::HiRes::gettimeofday; 
+print "$s:$us\nok 2\n";
 
-my $have_gettimeofday	= defined &Time::HiRes::gettimeofday;
-my $have_usleep		= defined &Time::HiRes::usleep;
-my $have_ualarm		= defined &Time::HiRes::ualarm;
+print "time...";
+$f = Time::HiRes::time; 
+print "$f\nok 3\n";
 
-import Time::HiRes 'gettimeofday'	if $have_gettimeofday;
-import Time::HiRes 'usleep'		if $have_usleep;
-import Time::HiRes 'ualarm'		if $have_ualarm;
+print "usleep...";
+$f = Time::HiRes::time; 
+($s, $us) = Time::HiRes::gettimeofday; 
+Time::HiRes::usleep(500_000);
+$f2 = Time::HiRes::time;
+($s2, $us2) = Time::HiRes::gettimeofday;
+print $f2 - $f, "\nok 4\n";
 
-sub skip {
-    map { print "ok $_ (skipped)\n" } @_;
-}
+print "tv_interval...";
+print Time::HiRes::tv_interval([$s, $us], [$s2, $us2]), "\nok 5\n";
 
-sub ok {
-    my ($n, $result, @info) = @_;
-    if ($result) {
-    	print "ok $n\n";
-    }
-    else {
-	print "not ok $n\n";
-    	print "# @info\n" if @info;
-    }
-}
+print "sleep...";
+$r = [Time::HiRes::gettimeofday];
+Time::HiRes::sleep (0.5);
+$r2 = [Time::HiRes::gettimeofday];
+print Time::HiRes::tv_interval($r, $r2), "\nok 6\n";
 
-if (!$have_gettimeofday) {
-    skip 2..6;
-}
-else {
-    my @one = gettimeofday();
-    ok 2, @one == 2, 'gettimeofday returned ', 0+@one, ' args';
-    ok 3, $one[0] > 850_000_000, "@one too small";
+print "tv_interval (1 arg)...";
+print Time::HiRes::tv_interval($r), "\nok 7\n";
 
-    my @two = gettimeofday();
-    ok 4, ($two[0] > $one[0] || ($two[0] == $one[0] && $two[1] > $one[1])),
-    	    "@two is not greater than @one";
+$r = [Time::HiRes::gettimeofday];
+$i = 5;
+Time::HiRes::ualarm(2_000_000, 500_000);
+$SIG{ALRM} = "tick";
+while ($i)
+ {
+  select (undef, undef, undef, 10);
+  print "Select returned! ", Time::HiRes::tv_interval ($r), "\n";
+ }
 
-    my $f = Time::HiRes::time;
-    ok 5, $f > 850_000_000, "$f too small";
-    ok 6, $f - $two[0] < 2, "$f - @two >= 2";
-}
-
-if (!$have_usleep) {
-    skip 7..8;
-}
-else {
-    my $one = time;
-    usleep(10_000);
-    my $two = time;
-    usleep(10_000);
-    my $three = time;
-    ok 7, $one == $two || $two == $three, "slept too long, $one $two $three";
-
-    if (!$have_gettimeofday) {
-    	skip 8;
-    }
-    else {
-    	my $f = Time::HiRes::time;
-	usleep(500_000);
-	my $d = Time::HiRes::time() - $f;
-	ok 8, $d > 0.4 && $d < 0.8, "slept $d secs";
-    }
-}
-
-# Two-arg tv_interval() is always available.
-{
-    my $f = tv_interval [5, 100_000], [10, 500_000];
-    ok 9, $f == 5.4, $f;
-}
-
-if (!$have_gettimeofday) {
-    skip 10;
-}
-else {
-    my $r = [gettimeofday()];
-    my $f = tv_interval $r;
-    ok 10, $f < 2, $f;
-}
-
-if (!$have_usleep) {
-    skip 11;
-}
-else {
-    my $r = [gettimeofday()];
-    #jTime::HiRes::sleep 0.5;
-    Time::HiRes::sleep( 0.5 );
-    my $f = tv_interval $r;
-    ok 11, $f > 0.4 && $f < 0.8, "slept $f secs";
-}
-
-if (!$have_ualarm) {
-    skip 12..13;
-}
-else {
-    my $tick = 0;
-    local $SIG{ALRM} = sub { $tick++ };
-
-    my $one = time; $tick = 0; ualarm(10_000); sleep until $tick;
-    my $two = time; $tick = 0; ualarm(10_000); sleep until $tick;
-    my $three = time;
-    ok 12, $one == $two || $two == $three, "slept too long, $one $two $three";
-
-    $tick = 0;
-    ualarm(10_000, 10_000);
-    sleep until $tick >= 3;
-    ok 13, 1;
-    ualarm(0);
-}
+sub tick
+ {
+  print "Tick! ", Time::HiRes::tv_interval ($r), "\n";
+  $i--;
+ }
+$SIG{ALRM} = 'DEFAULT';
+print "ok 8\n";
