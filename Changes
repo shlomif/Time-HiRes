@@ -1,5 +1,14 @@
 Revision history for Perl extension Time::HiRes.
 
+1.29_01
+
+	- getitimer(ITIMER_VIRTUAL) cygwin and win32
+	- remove CVS revision log from HiRes.xs
+	- #undef ITIMER_VIRTUAL in Cygwin and Win32 since
+	  the functionality isn't there: when the functionality
+	  gets there we can start playing with release levels
+	  (need to patch this also in Perl 5.[89])
+
 1.29_00
 
 	The following numbered patches refer to the Perl 5.7 changes,
@@ -49,7 +58,6 @@ Revision history for Perl extension Time::HiRes.
 	- 11797: problem in HiRes.t, from John P. Linderman
 	- 11414: prototype from Time::HiRes::sleep(), from Abhijit Menon-Sen
 	- 11409: Time::HiRes qw(sleep) failed, from Abhijit Menon-Sen
-	- 11301: AIX 4.2 threaded hints XXX, from H. Merijn Brand
 	- 11270: dynix/ptx 4.5.2 hints fix, from Peter Prymmer 
 	- 11032: VAX VMS s/div/lib\$ediv/ fix, from Peter Prymmer
 	- 11011: VAX VMS s/qdiv/div/ fix, from Peter Prymmer

@@ -12,7 +12,7 @@ use XSLoader;
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval
 		 getitimer setitimer ITIMER_REAL ITIMER_VIRTUAL ITIMER_PROF);
 
-$VERSION = '1.29_00';
+$VERSION = '1.29_01';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -160,7 +160,7 @@ provided with perl, see the EXAMPLES below.
 
 =item alarm ( $floating_seconds [, $interval_floating_seconds ] )
 
-The SIGALRM signal is sent after the specfified number of seconds.
+The SIGALRM signal is sent after the specified number of seconds.
 Implemented using ualarm().  The $interval_floating_seconds argument
 is optional and will be 0 if unspecified, resulting in alarm()-like
 behaviour.  This function can be imported, resulting in a nice drop-in
@@ -184,7 +184,9 @@ In scalar context, the remaining time in the timer is returned.
 In list context, both the remaining time and the interval are returned.
 
 There are three interval timers: the $which can be ITIMER_REAL,
-ITIMER_VIRTUAL, or ITIMER_PROF.
+ITIMER_VIRTUAL, or ITIMER_PROF.  Note that which ones are available
+depends: true UNIX platforms have usually all of them, but for example
+Win32 and Cygwin only have ITIMER_REAL.
 
 ITIMER_REAL results in alarm()-like behavior.  Time is counted in
 I<real time>, that is, wallclock time.  SIGALRM is delivered when

@@ -18,6 +18,13 @@ extern "C" {
 }
 #endif
 
+/* Though the cpp define ITIMER_VIRTUAL is available the functionality
+ * is not supported in Cygwin as of August 2002, ditto for Win32. --jhi
+ * /
+#if defined(__CYGWIN__) || defined(WIN32)
+#   undef ITIMER_VIRTUAL
+#endif
+
 static IV
 constant(char *name, int arg)
 {
@@ -781,41 +788,3 @@ getitimer(which)
 
 #endif
 
-# $Id: HiRes.xs,v 1.11 1999/03/16 02:27:38 wegscd Exp wegscd $
-
-# $Log: HiRes.xs,v $
-# Revision 1.11  1999/03/16 02:27:38  wegscd
-# Add U2time, NVtime. Fix symbols for static link.
-#
-# Revision 1.10  1998/09/30 02:36:25  wegscd
-# Add VMS changes.
-#
-# Revision 1.9  1998/07/07 02:42:06  wegscd
-# Win32 usleep()
-#
-# Revision 1.8  1998/07/02 01:47:26  wegscd
-# Add Win32 code for gettimeofday.
-#
-# Revision 1.7  1997/11/13 02:08:12  wegscd
-# Add missing EXTEND in gettimeofday() scalar code.
-#
-# Revision 1.6  1997/11/11 02:32:35  wegscd
-# Do something useful when calling gettimeofday() in a scalar context.
-# The patch is courtesy of Gisle Aas.
-#
-# Revision 1.5  1997/11/06 03:10:47  wegscd
-# Fake ualarm() if we have setitimer.
-#
-# Revision 1.4  1997/11/05 05:41:23  wegscd
-# Turn prototypes ON (suggested by Gisle Aas)
-#
-# Revision 1.3  1997/10/13 20:56:15  wegscd
-# Add PROTOTYPES: DISABLE
-#
-# Revision 1.2  1997/05/23 01:01:38  wegscd
-# Conditional compilation, depending on what the OS gives us.
-#
-# Revision 1.1  1996/09/03 18:26:35  wegscd
-# Initial revision
-#
-#
