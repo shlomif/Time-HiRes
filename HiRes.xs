@@ -110,9 +110,10 @@ gettimeofday (struct timeval *tp, void *tpz)
 #if !defined(HAS_USLEEP) && defined(HAS_SELECT)
 #ifndef SELECT_IS_BROKEN
 #define HAS_USLEEP
+#define usleep hrt_usleep  /* could conflict with ncurses for static build */
 
 void
-usleep(unsigned long usec)
+hrt_usleep(unsigned long usec)
 {
     struct timeval tv;
     tv.tv_sec = 0;
@@ -125,9 +126,10 @@ usleep(unsigned long usec)
 
 #if !defined(HAS_USLEEP) && defined(WIN32)
 #define HAS_USLEEP
+#define usleep hrt_usleep  /* could conflict with ncurses for static build */
 
 void
-usleep(unsigned long usec)
+hrt_usleep(unsigned long usec)
 {
     long msec;
     msec = usec / 1000;
@@ -138,9 +140,10 @@ usleep(unsigned long usec)
 
 #if !defined(HAS_UALARM) && defined(HAS_SETITIMER)
 #define HAS_UALARM
+#define ualarm hrt_ualarm  /* could conflict with ncurses for static build */
 
 int
-ualarm(int usec, int interval)
+hrt_ualarm(int usec, int interval)
 {
    struct itimerval itv;
    itv.it_value.tv_sec = usec / 1000000;
@@ -151,10 +154,42 @@ ualarm(int usec, int interval)
 }
 #endif
 
+#ifdef ATLEASTFIVEOHOHFIVE
+#ifdef HAS_GETTIMEOFDAY
+
+static void
+myU2time(UV *ret)
+{
+  struct timeval Tp;
+  int status;
+  status = gettimeofday (&Tp, NULL);
+  ret[0] = Tp.tv_sec;
+  ret[1] = Tp.tv_usec;
+}
+
+static double
+myNVtime()
+{
+  struct timeval Tp;
+  int status;
+  status = gettimeofday (&Tp, NULL);
+  return Tp.tv_sec + (Tp.tv_usec / 1000000.);
+}
+
+#endif
+#endif
 
 MODULE = Time::HiRes            PACKAGE = Time::HiRes
 
 PROTOTYPES: ENABLE
+
+BOOT:
+#ifdef ATLEASTFIVEOHOHFIVE
+#ifdef HAS_GETTIMEOFDAY
+  hv_store(PL_modglobal, "Time::NVtime", 12, newSViv((IV) myNVtime), 0);
+  hv_store(PL_modglobal, "Time::U2time", 12, newSViv((IV) myU2time), 0);
+#endif
+#endif
 
 #ifdef HAS_USLEEP
 
@@ -222,9 +257,12 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.10 1998/09/30 02:36:25 wegscd Exp wegscd $
+# $Id: HiRes.xs,v 1.11 1999/03/16 02:27:38 wegscd Exp wegscd $
 
 # $Log: HiRes.xs,v $
+# Revision 1.11  1999/03/16 02:27:38  wegscd
+# Add U2time, NVtime. Fix symbols for static link.
+#
 # Revision 1.10  1998/09/30 02:36:25  wegscd
 # Add VMS changes.
 #

@@ -32,21 +32,34 @@ sub try_compile_and_link {
     my ($c, $cccmd) = @_;
 
     my ($ok) = 0;
-    my ($tmp) = TMPDIR . '/' . "tmp$$";
+    my ($tmp) = ($^O eq 'VMS') ? "tmp$$" : TMPDIR . '/' . "tmp$$";
     local(*TMPC);
 
-    unlink("$tmp.c", "$tmp.o");
+    my $obj_ext = $Config{obj_ext} || ".o";
+    unlink("$tmp.c", "$tmp$obj_ext");
 
     if (open(TMPC, ">$tmp.c")) {
 	print TMPC $c;
 	close(TMPC);
 	my $COREincdir = $Config{'archlibexp'} . '/' . 'CORE';
 	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir";
+	if ($^O eq 'VMS') {
+            my $perl_core = $Config{'installarchlib'};
+            $perl_core =~ s/\]$/.CORE]/;
+            $cccmd = "$Config{'cc'} /include=(perl_root:[000000],$perl_core) $tmp.c"; 
+        }
 	$cccmd = "$Config{'cc'} -o $tmp $ccflags $tmp.c @$LIBS"
 	 unless (defined $cccmd);
 	system($cccmd);
-	$ok = -s $tmp && -x _;
-	unlink("$tmp.c", $tmp);
+	if ($^O eq 'VMS') {
+	    $ok = -s "$tmp$obj_ext" && -x _;
+	    unlink("$tmp.c", "$tmp$obj_ext");
+        }
+        else
+        {
+	    $ok = -s $tmp && -x _;
+	    unlink("$tmp.c", $tmp);
+        }
     }
     
     $ok;
@@ -124,6 +137,7 @@ sub unixinit {
     # ... but ucb is poison for Solaris, and probably Linux. honest.
     $LIBS = [''] if $Config{'osname'} eq 'solaris';
     $LIBS = [''] if $Config{'osname'} eq 'linux';
+    $LIBS = ['-lm'] if $Config{'osname'} =~ /sco/i;
 
     if ($Config{'d_gettimeod'} eq 'define') {
 	# do nothing special, everything should be fine
@@ -173,26 +187,38 @@ EOD
 }
 
 sub doMakefile {
-    print  <<EOM if ($$LIBS[0] ne '');
+    print <<EOM if ($$LIBS[0] ne '');
 Looking for libraries...
 Note: it is ok if none of the libraries '@$LIBS' is found.
 
 EOM
 
-WriteMakefile(
-    'NAME'	=> 'Time::HiRes',
-    'VERSION_FROM' => 'HiRes.pm', # finds $VERSION
-    'LIBS'	=> $LIBS,   # e.g., '-lm' 
-    'DEFINE'	=> $DEFINE,     # e.g., '-DHAS_SOMETHING' 
-    'XSOPT'	=> $XSOPT,
-# do not even think about 'INC' => '-I/usr/ucbinclude', Solaris will avenge.
-    'INC'	=> '',     # e.g., '-I/usr/include/other' 
-    'dist'      => {
-	'CI'=>'ci -l',
-	'COMPRESS'=>'gzip -9f', 
-	'SUFFIX' => 'gz',
+    @makefileopts = ();
+
+    if ($] >= 5.005) {
+	push (@makefileopts,
+	    'AUTHOR'    => 'Doug Wegscheid (wegscd@whirlpool.com)',
+	    'ABSTRACT_FROM' => 'HiRes.pm',
+	);
+	$DEFINE .= " -DATLEASTFIVEOHOHFIVE";
+    }
+
+    push (@makefileopts,
+	'NAME'	=> 'Time::HiRes',
+	'VERSION_FROM' => 'HiRes.pm', # finds $VERSION
+	'LIBS'	=> $LIBS,   # e.g., '-lm' 
+	'DEFINE'	=> $DEFINE,     # e.g., '-DHAS_SOMETHING' 
+	'XSOPT'	=> $XSOPT,
+    # do not even think about 'INC' => '-I/usr/ucbinclude', Solaris will avenge.
+	'INC'	=> '',     # e.g., '-I/usr/include/other' 
+	'dist'      => {
+	    'CI'=>'ci -l',
+	    'COMPRESS'=>'gzip -9f', 
+	    'SUFFIX' => 'gz',
 	},
-);
+    );
+
+    WriteMakefile(@makefileopts);
 }
 
 sub main {
@@ -210,11 +236,12 @@ EOM
     }
     configure;
     doMakefile;
+    my $make = $Config{'make'} || "make";
 print  <<EOM;
 
 Done configuring
 
-Now you may issue 'make'. Do not forget also 'make test'.
+Now you may issue '$make'. Do not forget also '$make test'.
 
 EOM
 }

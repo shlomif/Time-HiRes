@@ -11,7 +11,7 @@ require DynaLoader;
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval);
 
-$VERSION = do{my@r=q$Revision: 1.19 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
+$VERSION = do{my@r=q$Revision: 1.20 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
 
 bootstrap Time::HiRes $VERSION;
 
@@ -41,7 +41,7 @@ __END__
 
 =head1 NAME
 
-Time::HiRes - Perl extension for ualarm, usleep, and gettimeofday
+Time::HiRes - High resolution ualarm, usleep, and gettimeofday
 
 =head1 SYNOPSIS
 
@@ -166,6 +166,31 @@ replacement for the C<alarm> provided with perl, see the EXAMPLES below.
   sleep (2.5);
   alarm (10.6666666);
 
+=head1 C API
+
+In addition to the perl API described above, a C API is available for
+extension writers.  The following C functions are available in the
+modglobal hash:
+
+  name             C prototype
+  ---------------  ----------------------
+  Time::NVtime     double (*)()
+  Time::U2time     void (*)(UV ret[2])
+
+Both functions return equivalent information (like C<gettimeofday>)
+but with different representations.  The names C<NVtime> and C<U2time>
+were selected mainly because they are operating system independent.
+(C<gettimeofday> is Un*x-centric.)
+
+Here is an example of using NVtime from C:
+
+  double (*myNVtime)();
+  SV **svp = hv_fetch(PL_modglobal, "Time::NVtime", 12, 0);
+  if (!svp)         croak("Time::HiRes is required");
+  if (!SvIOK(*svp)) croak("Time::NVtime isn't a function pointer");
+  myNVtime = (double(*)()) SvIV(*svp);
+  printf("The current time is: %f\n", (*myNVtime)());
+
 =head1 AUTHORS
 
 D. Wegscheid <wegscd@whirlpool.com>
@@ -175,9 +200,12 @@ G. Aas <gisle@aas.no>
 
 =head1 REVISION
 
-$Id: HiRes.pm,v 1.19 1998/09/30 02:34:42 wegscd Exp $
+$Id: HiRes.pm,v 1.20 1999/03/16 02:26:13 wegscd Exp $
 
 $Log: HiRes.pm,v $
+Revision 1.20  1999/03/16 02:26:13  wegscd
+Add documentation for NVTime and U2Time.
+
 Revision 1.19  1998/09/30 02:34:42  wegscd
 No changes, bump version.
 
