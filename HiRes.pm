@@ -11,7 +11,7 @@ require DynaLoader;
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval);
 
-$VERSION = do{my@r=q$Revision: 1.12 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
+$VERSION = do{my@r=q$Revision: 1.14 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
 
 bootstrap Time::HiRes $VERSION;
 
@@ -160,12 +160,19 @@ replacement for the C<alarm> provided with perl, see the EXAMPLES below.
 D. Wegscheid <wegscd@whirlpool.com>
 R. Schertler <roderick@argon.org>
 J. Hietaniemi <jhi@iki.fi>
+G. Aas <gisle@aas.no>
 
 =head1 REVISION
 
-$Id: HiRes.pm,v 1.12 1997/10/13 20:55:33 wegscd Exp $
+$Id: HiRes.pm,v 1.14 1997/11/06 03:14:35 wegscd Exp $
 
 $Log: HiRes.pm,v $
+Revision 1.14  1997/11/06 03:14:35  wegscd
+Update version # for Makefile.PL and HiRes.xs changes.
+
+Revision 1.13  1997/11/05 05:36:25  wegscd
+change version # for Makefile.pl and HiRes.xs changes.
+
 Revision 1.12  1997/10/13 20:55:33  wegscd
 Force a new version for Makefile.PL changes.
 

@@ -31,12 +31,11 @@ sub try_compile_and_link {
 	close(TMPC);
 	my $COREincdir = $Config{'archlibexp'} . '/' . 'CORE';
 	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir";
-	$cccmd =
-	    "$Config{'cc'} -c -o $tmp.o $ccflags $tmp.c @$LIBS 2>/dev/null"
-		unless (defined $cccmd);
+	$cccmd = "$Config{'cc'} -o $tmp $ccflags $tmp.c @$LIBS"
+	 unless (defined $cccmd);
 	system($cccmd);
-	$ok = -s "$tmp.o";
-	unlink("$tmp.c", "$tmp.o");
+	$ok = -s "$tmp";
+	unlink("$tmp.c", "$tmp");
     }
     
     $ok;
@@ -86,7 +85,11 @@ sub has_x {
 #   include <sys/types.h>
 #endif
 
-static int foo()
+#ifdef I_SYS_TIME
+#   include <sys/time.h>
+#endif
+
+int main _((int argc, char** argv, char** env))
 {
 	$x;
 }
@@ -97,8 +100,15 @@ EOM
 sub init {
     $DEFINE = '';
 
-    # ucb is poison for Solaris.
-    $LIBS = $Config{'osname'} eq 'solaris' ? [''] : ['-lucb -lbsd'];
+    $LIBS = [''];
+
+    # this might break the link, try it if it can't find some things you 
+    # honestly think should be in there...
+    # $LIBS = ['-lucb -lbsd'];
+
+    # ... but ucb is poison for Solaris, and probably Linux. honest.
+    $LIBS = [''] if $Config{'osname'} eq 'solaris';
+    $LIBS = [''] if $Config{'osname'} eq 'linux';
 
     if ($Config{'d_gettimeod'} eq 'define') {
 	# do nothing special, everything should be fine
@@ -136,8 +146,15 @@ EOD
 	$DEFINE .= ' -DHAS_UALARM';
 	print "You have ualarm()\n\n";
     } else {
-	print "Whoops! No ualarm()! We'll manage.\n\n";
+	print "Whoops! No ualarm()!\n";
+	if (has_x("setitimer(ITIMER_REAL, 0, 0)")) {
+	    print "You have setitimer(); we can make a Time::HiRes::ualarm()\n\n";
+	    $DEFINE .= ' -DHAS_SETITIMER';
+	} else {
+	     print "We'll manage.\n\n";
+	}
     }
+    $DEFINE =~ s/^\s+//;
 }
 
 sub doMakefile {

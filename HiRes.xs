@@ -9,37 +9,46 @@ extern "C" {
 }
 #endif
 
+#if !defined(HAS_USLEEP) && defined(HAS_SELECT)
+#define HAS_USLEEP
+
+void
+usleep(unsigned long usec)
+{
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = usec;
+    select(0, (Select_fd_set_t)NULL, (Select_fd_set_t)NULL,
+		(Select_fd_set_t)NULL, &tv);
+}
+#endif
+
+
+#if !defined(HAS_UALARM) && defined(HAS_SETITIMER)
+#define HAS_UALARM
+
+int
+ualarm(int usec, int interval)
+{
+   struct itimerval itv;
+   itv.it_value.tv_sec = 0;
+   itv.it_value.tv_usec = usec;
+   itv.it_interval.tv_sec = 0;
+   itv.it_interval.tv_usec = interval;
+   return setitimer(ITIMER_REAL, &itv, 0);
+}
+#endif
+
+
 MODULE = Time::HiRes            PACKAGE = Time::HiRes
 
-PROTOTYPES: DISABLE
-
-#include "config.h"
-
-#if defined(HAS_USLEEP) || defined(HAS_SELECT)
+PROTOTYPES: ENABLE
 
 #ifdef HAS_USLEEP
 
 void
 usleep(useconds)
         int useconds 
-
-#else
-
-#ifdef I_SYS_SELECT
-#  include <sys/select.h>
-#endif
-
-void
-usleep(useconds)
-    	PREINIT:
-	struct timeval tv;
-	PPCODE:
-	tv.tv_sec = 0;
-	tv.tv_usec = SvIV(ST(0));
-	select(0, (Select_fd_set_t)NULL, (Select_fd_set_t)NULL,
-		(Select_fd_set_t)NULL, &tv);
-
-#endif
 
 void
 sleep(fseconds)
@@ -96,9 +105,15 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.3 1997/10/13 20:56:15 wegscd Exp wegscd $
+# $Id: HiRes.xs,v 1.5 1997/11/06 03:10:47 wegscd Exp $
 
 # $Log: HiRes.xs,v $
+# Revision 1.5  1997/11/06 03:10:47  wegscd
+# Fake ualarm() if we have setitimer.
+#
+# Revision 1.4  1997/11/05 05:41:23  wegscd
+# Turn prototypes ON (suggested by Gisle Aas)
+#
 # Revision 1.3  1997/10/13 20:56:15  wegscd
 # Add PROTOTYPES: DISABLE
 #
