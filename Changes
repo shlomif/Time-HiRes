@@ -1,5 +1,16 @@
 Revision history for Perl extension Time::HiRes.
 
+1.37
+	- Ray Zimmerman ran into a race condition in Mac OS X.
+	  A 0.01-second alarm fired before the test expected.
+	  The test first slept indefinitely (blocking for signals)
+	  and only after that tested for the signal having been sent.
+	  Since the signal had already been sent, the test #12 never
+	  completed.  The solution: test first, then block.
+	- default to being silent on all probing attempts, set the
+	  environment variable VERBOSE to a true value to see the
+	  details (the probing command and the possible errors)
+
 1.36
 	- do not clear MAN3PODS in Makefile.PL (Radoslaw Zielinski)
 	- INSTALLDIRS => 'perl' missing which means that Time::HiRes
@@ -88,10 +99,10 @@ Revision history for Perl extension Time::HiRes.
 	- 12692: alarm() ain't gonna work if ualarm() ain't,
 		 from Gurusamy Sarathy
 	- 12680: minor VMS tweak, from Charles Lane
-	- 12617: don't tey to print ints as IVs, from Jarkko Hietaniemi
+	- 12617: don't try to print ints as IVs, from Jarkko Hietaniemi
 	- 12609: croak on negative time, from Jarkko Hietaniemi
 	- 12595: Cygwin rounds up for time(), from Jarkko Hietaniemi
-	- 12594: MacOS Classic timeofday, from CHris Nandor 
+	- 12594: MacOS Classic timeofday, from Chris Nandor 
 	- 12473: allow for more than one second for sleep() and usleep()
 	- 12458: test tuning, relax timing constraints,
 		 from Jarkko Hietaniemi

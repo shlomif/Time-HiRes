@@ -10,6 +10,8 @@ use ExtUtils::MakeMaker;
 
 # Perls 5.002 and 5.003 did not have File::Spec, fake what we need.
 
+my $VERBOSE = $ENV{VERBOSE};
+
 sub my_dirsep {
     $^O eq 'VMS' ? '.' :
 	$^O =~ /mswin32|netware|djgpp/i ? '\\' :
@@ -89,7 +91,7 @@ sub try_compile_and_link {
 	    }
         }
 
-        if ($args{silent}) {
+        if ($args{silent} || !$VERBOSE) {
 	    $errornull = "2>/dev/null" unless defined $errornull;
 	} else {
 	    $errornull = '';
@@ -111,6 +113,7 @@ sub try_compile_and_link {
         }
         else
         {
+	    printf "cccmd = $cccmd\n" if $VERBOSE;
 	    system($cccmd);
 	    $ok = -s $tmp && -x _;
 	    unlink("$tmp.c", $tmp);
@@ -208,14 +211,14 @@ sub unixinit {
     for $lib (@$LIBS) {
 	print "Checking for $lib...\n";
 	$LIBS = [ $lib ];
-	if ($Config{$libs =~ /\b$lib\b/} || has_x("time(0)", silent => 1)) {
+	if ($Config{$libs =~ /\b$lib\b/} || has_x("time(0)")) {
 	    push @goodlibs, $lib;
 	}
     }
     @$LIBS = @goodlibs;
     print @$LIBS ?
 	  "You have extra libraries: @$LIBS.\n" :
-          "You have no extra libraries.\n";
+          "You have no applicable extra libraries.\n";
     print "\n";
 
     print "Looking for gettimeofday()...\n";

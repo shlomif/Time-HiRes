@@ -139,14 +139,14 @@ else {
     my $tick = 0;
     local $SIG{ALRM} = sub { $tick++ };
 
-    my $one = time; $tick = 0; ualarm(10_000); sleep until $tick;
-    my $two = time; $tick = 0; ualarm(10_000); sleep until $tick;
+    my $one = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep }
+    my $two = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep }
     my $three = time;
     ok 12, $one == $two || $two == $three, "slept too long, $one $two $three";
 
     $tick = 0;
     ualarm(10_000, 10_000);
-    sleep until $tick >= 3;
+    while ($tick < 3) { sleep }
     ok 13, 1;
     ualarm(0);
 }
