@@ -1,5 +1,12 @@
 Revision history for Perl extension Time::HiRes.
 
+1.15  Mon Nov 10 21:30 1997
+	- HiRes.pm: update pod. Provided by Gisle Aas.
+	- HiRes.xs: if gettimeofday() called in scalar context, do
+	  something more useful than before. Provided by Gisle Aas.
+	- README: tell of xsubpp '-nolinenumber' woes. thanks to
+	  Edward Henigin <ed@texas.net> for pointing out the problem.
+
 1.14  Wed Nov 5 9:40 1997
 	- Makefile.PL: look for setitimer
 	- HiRes.xs: if missing ualarm, but we have setitimer, make up

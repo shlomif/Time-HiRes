@@ -88,9 +88,13 @@ gettimeofday()
         PPCODE:
 	int status;
         status = gettimeofday (&Tp, NULL);
-        EXTEND(sp, 2);
-        PUSHs(sv_2mortal(newSViv(Tp.tv_sec)));
-        PUSHs(sv_2mortal(newSViv(Tp.tv_usec)));
+        if (GIMME_V == G_ARRAY) {
+	     EXTEND(sp, 2);
+             PUSHs(sv_2mortal(newSViv(Tp.tv_sec)));
+             PUSHs(sv_2mortal(newSViv(Tp.tv_usec)));
+        } else {
+             PUSHs(sv_2mortal(newSVnv(Tp.tv_sec + (Tp.tv_usec / 1000000.0))));
+        }
 
 double
 time()
@@ -105,9 +109,13 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.5 1997/11/06 03:10:47 wegscd Exp $
+# $Id: HiRes.xs,v 1.6 1997/11/11 02:32:35 wegscd Exp $
 
 # $Log: HiRes.xs,v $
+# Revision 1.6  1997/11/11 02:32:35  wegscd
+# Do something useful when calling gettimeofday() in a scalar context.
+# The patch is courtesy of Gisle Aas.
+#
 # Revision 1.5  1997/11/06 03:10:47  wegscd
 # Fake ualarm() if we have setitimer.
 #

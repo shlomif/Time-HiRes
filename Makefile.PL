@@ -8,6 +8,17 @@ require 5.002;
 use Config;
 use ExtUtils::MakeMaker;
 
+# comment the following if xsubpp complains about bad usage.
+$XSOPT = '-nolinenumbers'; 
+
+# if you have 5.004_03 (and some slightly older versions?), xsubpp
+# tries to generate line numbers in the C code generated from the .xs.
+# unfortunately, it is a little buggy around #ifdef'd code.
+# my choice is leave it in and have people with old perls complain 
+# about the "Usage" bug, or leave it out and be unable to compile myself
+# without changing it, and then I'd always forget to change it before a 
+# release. Sorry, Edward :)
+
 sub TMPDIR {
     my $TMPDIR =
 	(grep(defined $_ && -d $_ && -w $_,
@@ -169,7 +180,7 @@ WriteMakefile(
     'VERSION_FROM' => 'HiRes.pm', # finds $VERSION
     'LIBS'	=> $LIBS,   # e.g., '-lm' 
     'DEFINE'	=> $DEFINE,     # e.g., '-DHAS_SOMETHING' 
-    'XSOPT'	=> '-nolinenumbers', 
+    'XSOPT'	=> $XSOPT,
 # do not even think about 'INC' => '-I/usr/ucbinclude', Solaris will avenge.
     'INC'	=> '',     # e.g., '-I/usr/include/other' 
     'dist'      => {

@@ -18,6 +18,13 @@ missing any of these bits. Roderick Schertler <roderick@argon.org> did all
 the conditional compilation stuff, look at HiRes.pm and the test suites; 
 it's good educational reading.
 
+Also, older versions of Perl do not support '-nolinenumbers' on the XSUBPP
+command, however, 5.004_03 requires it (on my box, anyway) since the #line
+generating code in XSUBPP appears to have problems with #ifdef'd .xs code. If
+xsubpp complains about usage when you do a make, look at the top of the
+Makefile.PL and comment out the "$XSOPT=" line. Or upgrade to a newer version
+of Perl.
+
 POD documentation is embedded.
 
 Copyright (c) 1996 Douglas E. Wegscheid.

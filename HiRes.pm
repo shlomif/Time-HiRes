@@ -11,7 +11,7 @@ require DynaLoader;
 @EXPORT = qw( );
 @EXPORT_OK = qw (usleep sleep ualarm alarm gettimeofday time tv_interval);
 
-$VERSION = do{my@r=q$Revision: 1.14 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
+$VERSION = do{my@r=q$Revision: 1.15 $=~/\d+/g;sprintf '%02d.'.'%02d'x$#r,@r};
 
 bootstrap Time::HiRes $VERSION;
 
@@ -67,25 +67,33 @@ Time::HiRes - Perl extension for ualarm, usleep, and gettimeofday
 
 =head1 DESCRIPTION
 
-The C<Time::HiRes> package implements a Perl interface to the usleep, ualarm,
+The C<Time::HiRes> module implements a Perl interface to the usleep, ualarm,
 and gettimeofday system calls. See the EXAMPLES section below and the test
 scripts for usage; see your system documentation for the description of
 the underlying gettimeofday, usleep, and ualarm calls.
 
-If your system lacks gettimeofday() you don't get gettimeofday() or the
-one-arg form of tv_interval().  If you don't have usleep() or select()
-you don't get usleep() or sleep().  If you don't have ualarm() you don't
+If your system lacks gettimeofday(2) you don't get gettimeofday() or the
+one-arg form of tv_interval().  If you don't have usleep(3) or select(2)
+you don't get usleep() or sleep().  If your system don't have ualarm(3)
+or setitimer(2) you don't
 get ualarm() or alarm().  If you try to import an unimplemented function
 in the C<use> statement it will fail at compile time.
 
-=item gettimeofday
+The following functions can be imported from this module.  No
+functions are exported by default.
 
-Returns a 2 element array with the second and microseconds since the epoch.
+=over 4
+
+=item gettimeofday ()
+
+In array context it returns a 2 element array with the seconds and
+microseconds since the epoch.  In scalar context it returns floating
+seconds like Time::HiRes::time() (see below).
 
 =item usleep ( $useconds )
 
 Issues a usleep for the number of microseconds specified. See also 
-Time::HiRes::sleep.
+Time::HiRes::sleep() below.
 
 =item ualarm ( $useconds [, $interval_useconds ] )
 
@@ -95,10 +103,10 @@ unspecified, resulting in alarm-like behaviour.
 =item tv_interval ( $ref_to_gettimeofday [, $ref_to_later_gettimeofday] )
 
 Returns the floating seconds between the two times, which should have been 
-returned by Time::HiRes::gettimeofday. If the second is omitted, then the
-current time is use.
+returned by gettimeofday(). If the second argument is omitted, then the
+current time is used.
 
-=item time 
+=item time ()
 
 Returns a floating seconds since the epoch. This function can be imported,
 resulting in a nice drop-in replacement for the C<time> provided with perl,
@@ -113,10 +121,12 @@ replacement for the C<sleep> provided with perl, see the EXAMPLES below.
 =item alarm ( $floating_seconds [, $interval_floating_seconds ] )
 
 Converts $floating_seconds and $interval_floating_seconds and issues a
-ualarm for the results.  $interval_floating_seconds is optional and will 
+ualarm for the results.  The $interval_floating_seconds argument is optional and will 
 be 0 if unspecified, resulting in alarm-like behaviour.  This function can 
 be imported, resulting in a nice drop-in 
 replacement for the C<alarm> provided with perl, see the EXAMPLES below.
+
+=back
 
 =head1 EXAMPLES
 
@@ -143,7 +153,8 @@ replacement for the C<alarm> provided with perl, see the EXAMPLES below.
   $elapsed = tv_interval ($t0);	# equivalent code
 
   #
-  # replacements for time, alarm and sleep that know about floating seconds
+  # replacements for time, alarm and sleep that know about
+  # floating seconds
   #
   use Time::HiRes;
   $now_fractions = Time::HiRes::time;
@@ -164,9 +175,12 @@ G. Aas <gisle@aas.no>
 
 =head1 REVISION
 
-$Id: HiRes.pm,v 1.14 1997/11/06 03:14:35 wegscd Exp $
+$Id: HiRes.pm,v 1.15 1997/11/11 02:17:59 wegscd Exp $
 
 $Log: HiRes.pm,v $
+Revision 1.15  1997/11/11 02:17:59  wegscd
+POD editing, courtesy of Gisle Aas.
+
 Revision 1.14  1997/11/06 03:14:35  wegscd
 Update version # for Makefile.PL and HiRes.xs changes.
 
@@ -194,7 +208,7 @@ Initial revision
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996 Douglas E. Wegscheid.
+Copyright (c) 1996-1997 Douglas E. Wegscheid.
 All rights reserved. This program is free software; you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
