@@ -1,4 +1,4 @@
-#
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 #
@@ -21,7 +21,7 @@ $XSOPT = '-nolinenumbers';
 
 sub TMPDIR {
     my $TMPDIR =
-	(grep(defined $_ && -d $_ && -w $_,
+	(grep(defined $_ && -d $_ && -w _,
 	      ((defined $ENV{'TMPDIR'} ? $ENV{'TMPDIR'} : undef),
 	       qw(/var/tmp /usr/tmp /tmp))))[0]
 		   unless defined $TMPDIR;
@@ -45,8 +45,8 @@ sub try_compile_and_link {
 	$cccmd = "$Config{'cc'} -o $tmp $ccflags $tmp.c @$LIBS"
 	 unless (defined $cccmd);
 	system($cccmd);
-	$ok = -s "$tmp";
-	unlink("$tmp.c", "$tmp");
+	$ok = -s $tmp && -x _;
+	unlink("$tmp.c", $tmp);
     }
     
     $ok;

@@ -61,6 +61,18 @@ usleep(unsigned long usec)
 #endif
 #endif
 
+#if !defined(HAS_USLEEP) && defined(WIN32)
+#define HAS_USLEEP
+
+void
+usleep(unsigned long usec)
+{
+    long msec;
+    msec = usec / 1000;
+    Sleep (msec);
+}
+#endif
+
 
 #if !defined(HAS_UALARM) && defined(HAS_SETITIMER)
 #define HAS_UALARM
@@ -148,9 +160,12 @@ time()
 
 #endif
 
-# $Id: HiRes.xs,v 1.8 1998/07/02 01:47:26 wegscd Exp $
+# $Id: HiRes.xs,v 1.9 1998/07/07 02:42:06 wegscd Exp wegscd $
 
 # $Log: HiRes.xs,v $
+# Revision 1.9  1998/07/07 02:42:06  wegscd
+# Win32 usleep()
+#
 # Revision 1.8  1998/07/02 01:47:26  wegscd
 # Add Win32 code for gettimeofday.
 #
