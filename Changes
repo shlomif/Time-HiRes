@@ -1,4 +1,42 @@
 Revision history for Perl extension Time::HiRes.
 
+1.12  Sun Oct 12 12:00:00 1997
+	- Makefile.PL: set XSOPT to '-nolinenumbers' to work around xsubpp bug;
+	  you may need to comment this back out if you have an older xsubpp.
+	- HiRes.xs: set PROTOTYPES: DISABLE
+
+1.11  Fri Sep 05 16:00:00 1997
+	- Makefile.PL:
+	  Had some line commented out that shouldn't have been (testing
+	  remnants)
+	- README:
+	  Previous version was corrupted.
+
+1.10  Thu May 22 20:20:00 1997
+	- HiRes.xs, HiRes.pm, t/*:
+	      -	only compile what we have OS support for (or can 
+		fake with select())
+	      - only test what we compiled 
+	      - gross improvement to the test suite
+	      - fix EXPORT_FAIL. 
+	  This work was all done by Roderick Schertler
+	  <roderick@argon.org>. If you run Linux or
+	  one of the other ualarm-less platoforms, and you like this 
+	  module, let Roderick know; without him, it still wouldn't 
+	  be working on those boxes...
+	- Makefile.PL: figure out what routines the OS has and
+	  only build what we need. These bits were written by Jarkko 
+	  Hietaniemi <jhi@iki.fi>. Again, gratitude is due...
+
+1.02  Mon Dec 30 08:00:00 1996
+	- HiRes.pm: update documentation to say what to do when missing
+	  ualarm() and friends.
+	- README: update to warn that ualarm() and friends need to exist
+
+1.01  Fri Oct 17 08:00:00 1996
+	- Makefile.PL: make XSPROTOARGS => '-noprototyopes'
+	- HiRes.pm: put blank line between __END__ and =head1 so that 
+	  pod2man works.
+
 1.00  Tue Sep 03 13:00:00 1996
 	- original version; created by h2xs 1.16
