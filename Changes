@@ -1,5 +1,13 @@
 Revision history for Perl extension Time::HiRes.
 
+1.65
+	- one should not mix u?alarm and sleep (the tests modified
+	  by 1.65, #12 and #13, hung in Solaris), now we just busy
+	  loop executing an empty block
+	- in the documentation underline the unspecificity of mixing
+	  sleeps and alarms
+	- small spelling fixes
+
 1.64
 	- regenerate ppport.h with Devel::PPPort 3.03,
 	  now the MY_CXT_CLONE is defined in ppport.h,

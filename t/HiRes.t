@@ -166,16 +166,18 @@ if (!$have_ualarm || !$have_alarm) {
 }
 else {
     my $tick = 0;
-    local $SIG{ALRM} = sub { $tick++ };
+    local $SIG{ ALRM } = sub { $tick++ };
 
-    my $one = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep(1) }
-    my $two = time; $tick = 0; ualarm(10_000); while ($tick == 0) { sleep(1) }
+    my $one = time; $tick = 0; ualarm(10_000); while ($tick == 0) { }
+    my $two = time; $tick = 0; ualarm(10_000); while ($tick == 0) { }
     my $three = time;
     ok 12, $one == $two || $two == $three, "slept too long, $one $two $three";
+    print "# tick = $tick, one = $one, two = $two, three = $three\n";
 
-    $tick = 0; ualarm(10_000, 10_000); while ($tick < 3) { sleep(1) }
+    $tick = 0; ualarm(10_000, 10_000); while ($tick < 3) { }
     ok 13, 1;
     ualarm(0);
+    print "# tick = $tick, one = $one, two = $two, three = $three\n";
 }
 
 # Did we even get close?
@@ -371,5 +373,6 @@ if ($have_ualarm) {
 if (defined $pid) {
     print "# Terminating the timer process $pid\n";
     kill('TERM', $pid); # We are done, the timer can go.
+    unlink("ktrace.out");
 }
 
