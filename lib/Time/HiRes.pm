@@ -15,7 +15,7 @@ require DynaLoader;
 		 d_usleep d_ualarm d_gettimeofday d_getitimer d_setitimer
 		 d_nanosleep);
 	
-$VERSION = '1.34';
+$VERSION = '1.35';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -92,19 +92,24 @@ documentation for the description of the underlying nanosleep or usleep,
 ualarm, gettimeofday, and setitimer/getitimer calls.
 
 If your system lacks gettimeofday(2) or an emulation of it you don't
-get gettimeofday() or the one-arg form of tv_interval().
-If you don't have nanosleep() or usleep(3) or select(2) you don't get
-usleep() or sleep().  If your system don't have ualarm(3) or
-setitimer(2) you don't get ualarm() or alarm().  If you try to import
-an unimplemented function in the C<use> statement it will fail at
-compile time.
+get gettimeofday() or the one-arg form of tv_interval().  If you don't
+have nanosleep() or usleep(3) or select(2) you don't get Time::HiRes::usleep()
+or sleep().  If your system don't have ualarm(3) or setitimer(2) you
+don't get Time::HiRes::ualarm() or alarm().
+
+If you try to import an unimplemented function in the C<use> statement
+it will fail at compile time.
 
 If your subsecond sleeping is implemented with nanosleep() instead of
-usleep(), you can mix subsecond sleeping with signals since nanosleep()
-does not use signals.  This, however, is unportable behavior, and you
-should first check for the truth of C<&Time::HiRes::d_nanosleep> to see
-whether you have nanosleep, and then read carefully your nanosleep()
-C API documentation.
+usleep(), you can mix subsecond sleeping with signals since
+nanosleep() does not use signals.  This, however, is unportable
+behavior, and you should first check for the truth value of
+C<&Time::HiRes::d_nanosleep> to see whether you have nanosleep,
+and then read carefully your nanosleep() C API documentation for
+any peculiarities.  (There is no separate interface to call nanosleep();
+just use Time::HiRes::sleep() or usleep() with small enough values.  Also,
+think twice whether using nanosecond accuracies in a Perl program is what
+you should be doing.)
 
 The following functions can be imported from this module.
 No functions are exported by default.
@@ -315,7 +320,7 @@ R. Schertler <roderick@argon.org>
 J. Hietaniemi <jhi@iki.fi>
 G. Aas <gisle@aas.no>
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 1996-2002 Douglas E. Wegscheid.  All rights reserved.
 
