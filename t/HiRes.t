@@ -287,7 +287,6 @@ unless (   defined &Time::HiRes::setitimer
 	&& defined &Time::HiRes::getitimer
 	&& eval 'use Time::HiRes qw(ITIMER_VIRTUAL); print ITIMER_VIRTUAL'
 	&& $Config{d_select}
-	&& $Config{d_select}
 	&& $Config{sig_name} =~ m/\bVTALRM\b/) {
     for (18..19) {
 	print "ok $_ # Skip: no virtual interval timers\n";
