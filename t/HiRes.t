@@ -519,7 +519,7 @@ if ($have_clock_gettime &&
 		print "# Error: t0 = $t0, t1 = $t1\n";
 	    }
 	    my $r = rand() + rand();
-	    printf "# Sleeping for %.6f seconds...\n";
+	    printf "# Sleeping for %.6f seconds...\n", $r;
 	    sleep($r);
 	}
     }
