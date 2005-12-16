@@ -1,5 +1,17 @@
 Revision history for Perl extension Time::HiRes.
 
+1.85	[2005-12-16]
+	- the interface to clock_nanosleep() is more natural
+	  when it is like (hires) time() (instead of like nanosleep),
+	  and the .xs implementation of clock_nanosleep() in 1.84
+	  was broken anyway
+	- the semantics of clock() are not quite so silly as I thought,
+	  but still somewhat odd, documented as such
+	- additional enhancements to the clock() documentation
+	- add test for clock_nanosleep() (I cannot test this
+	  since none of my systems have the function)
+	- add test for clock()
+
 1.84	[2005-12-16]
 	- add clock() which returns the processor time in
 	  (floating point) seconds since an arbitrary era

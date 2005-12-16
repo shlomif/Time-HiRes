@@ -1080,30 +1080,20 @@ clock_getres(clock_id = 0)
 #if defined(TIME_HIRES_CLOCK_NANOSLEEP) && defined(TIMER_ABSTIME)
 
 NV
-clock_nanosleep(clock_id = CLOCK_REALTIME, nsec = 0, flags = 0)
+clock_nanosleep(clock_id = CLOCK_REALTIME, sec = 0.0, flags = 0)
 	int clock_id
-	NV  nsec
+	NV  sec
 	int flags
     PREINIT:
 	int status = -1;
-	struct timespec ts1;
-	struct timespec ts2;
+	struct timespec ts;
 	struct timeval Ta, Tb;
     CODE:
 	gettimeofday(&Ta, NULL);
-	if (items > 0) {
-	    struct timespec ts1;
-	    if (nsec > 1E9) {
-	        IV sec = (IV) (nsec / 1E9);
-		if (sec) {
-		    sleep(sec);
-		    nsec -= 1E9 * sec;
-		}
-	    } else if (nsec < 0.0)
-	        croak("Time::HiRes::clock_nanosleep(%"NVgf"): negative time not invented yet", nsec);
-	    ts1.tv_sec  = (IV) (nsec / 1E9);
-	    ts1.tv_nsec = (IV) nsec - ts1.tv_sec * 1E9;
-	    status = clock_nanosleep(clock_id, flags, &ts1, NULL);
+	if (items > 1) {
+	    ts.tv_sec  = (IV) sec;
+	    ts.tv_nsec = (sec - (NV) ts.tv_sec) * (NV) 1E9;
+	    status = clock_nanosleep(clock_id, flags, &ts, NULL);
 	} else {
 	    PerlProc_pause();
 	    status = 0;

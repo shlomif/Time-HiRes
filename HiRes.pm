@@ -21,7 +21,7 @@ require DynaLoader;
 		 d_nanosleep d_clock_gettime d_clock_getres
 		 d_clock d_clock_nanosleep);
 	
-$VERSION = '1.84';
+$VERSION = '1.85';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -167,8 +167,8 @@ seconds like C<Time::HiRes::time()> (see below).
 Sleeps for the number of microseconds (millionths of a second)
 specified.  Returns the number of microseconds actually slept.  Can
 sleep for more than one second, unlike the C<usleep> system call. Can
-also sleep for zero seconds, which often works like a I<yield>.  See
-also C<Time::HiRes::usleep()>, C<Time::HiRes::sleep()>, and
+also sleep for zero seconds, which often works like a I<thread yield>.
+See also C<Time::HiRes::usleep()>, C<Time::HiRes::sleep()>, and
 C<Time::HiRes::clock_nanosleep()>.
 
 Do not expect usleep() to be exact down to one microsecond.
@@ -179,8 +179,8 @@ Sleeps for the number of nanoseconds (1e9ths of a second) specified.
 Returns the number of nanoseconds actually slept (accurate only to
 microseconds, the nearest thousand of them).  Can sleep for more than
 one second.  Can also sleep for zero seconds, which often works like a
-I<yield>.  See also C<Time::HiRes::sleep()>, C<Time::HiRes::usleep()>,
-and C<Time::HiRes::clock_nanosleep()>.
+I<thread yield>.  See also C<Time::HiRes::sleep()>,
+C<Time::HiRes::usleep()>, and C<Time::HiRes::clock_nanosleep()>.
 
 Do not expect nanosleep() to be exact down to one nanosecond.
 Getting even accuracy of one thousand nanoseconds is good.
@@ -325,32 +325,36 @@ specified by C<$which>.  All implementations that support POSIX high
 resolution timers are supposed to support at least the C<$which> value
 of C<CLOCK_REALTIME>, see L</clock_gettime>.
 
-=item clock_nanosleep ( $which, $nanoseconds, $flags = 0)
+=item clock_nanosleep ( $which, $seconds, $flags = 0)
 
-Sleeps for the number of nanoseconds (1e9ths of a second) specified.
-Returns the number of nanoseconds actually slept (accurate only to
-microseconds, the nearest thousand of them).  The $which is as with
-clock_gettime() and clock_getres().  The flags defaults to zero but it
-can contain C<TIMER_ABSTIME> (must be exported if needed) which means
-that C<$nanoseconds> is not a time interval but instead an absolute
-time.  Can sleep for more than one second.  Can also sleep for zero
-seconds, which often works like a I<yield>.  See also
-C<Time::HiRes::sleep()>, C<Time::HiRes::usleep()>, and
-C<Time::HiRes::nanosleep()>.
+Sleeps for the number of seconds (1e9ths of a second) specified.
+Returns the number of seconds actually slept.  The $which is the
+"clock id", as with clock_gettime() and clock_getres().  The flags
+default to zero but C<TIMER_ABSTIME> can specified (must be exported
+explicitly) which means that C<$nanoseconds> is not a time interval
+(as is the default) but instead an absolute time.  Can sleep for more
+than one second.  Can also sleep for zero seconds, which often works
+like a I<thread yield>.  See also C<Time::HiRes::sleep()>,
+C<Time::HiRes::usleep()>, and C<Time::HiRes::nanosleep()>.
 
 Do not expect clock_nanosleep() to be exact down to one nanosecond.
 Getting even accuracy of one thousand nanoseconds is good.
 
 =item clock()
 
-Return as seconds the I<process time> (CPU time) spent by the process
-B<since some arbitrary starting point (era) in the past>.  If you are
-lucky, in your system this arbitrary starting point is the starting
-time of your process.  If not, you have to first store the result of
-a clock() call and then subtract that initial value from all the results
-of the following clock() calls.  These (resulting differences) are
+Return as seconds the I<process time> (user + system time) spent by
+the process since the first call to clock() (the definition is B<not>
+"since the start of the process", though if you are lucky these times
+may be quite close to each other, depending on the system).  What this
+means is that you probably need to store the result of your first call
+to clock(), and subtract that value from the following results of clock().
+
+The time returned also includes the process times of the terminated
+child processes for which wait() has been executed.  This value is
 somewhat like the second value returned by the times() of core Perl,
-but not necessarily identical.
+but not necessarily identical.  Note that due to backward
+compatibility limitations the returned may wrap around at about 2147
+seconds or at about 36 minutes.
 
 =back
 
