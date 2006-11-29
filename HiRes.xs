@@ -1209,7 +1209,7 @@ clock()
 
 #endif /*  #if defined(TIME_HIRES_CLOCK) && defined(CLOCKS_PER_SEC) */
 
-IV
+void
 stat(...)
 PROTOTYPE: ;$
     PPCODE:
@@ -1218,11 +1218,12 @@ PROTOTYPE: ;$
 	PUTBACK;
 	ENTER;
 	PL_laststatval = -1;
-	(void)*(PL_ppaddr[OP_STAT])(aTHX);
+	Perl_pp_stat();
 	SPAGAIN;
 	LEAVE;
 	if (PL_laststatval == 0) {
-	  /* We assume that pp_stat() left us with 13 valid stack items. */
+	  /* We assume that pp_stat() left us with 13 valid stack items,
+	   * and that the timestamps are at offsets 8, 9, and 10. */
 	  UV atime = SvUV(ST( 8));
 	  UV mtime = SvUV(ST( 9));
 	  UV ctime = SvUV(ST(10));
