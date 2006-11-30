@@ -1213,12 +1213,13 @@ void
 stat(...)
 PROTOTYPE: ;$
     PPCODE:
+	dTHX;
 	PUSHMARK(SP);
 	XPUSHs(sv_2mortal(newSVsv(items == 1 ? ST(0) : DEFSV)));
 	PUTBACK;
 	ENTER;
 	PL_laststatval = -1;
-	Perl_pp_stat();
+	pp_stat();
 	SPAGAIN;
 	LEAVE;
 	if (PL_laststatval == 0) {
