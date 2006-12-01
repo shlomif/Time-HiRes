@@ -724,6 +724,9 @@ hrstatns(UV atime, UV mtime, UV ctime, UV *atime_nsec, UV *mtime_nsec, UV *ctime
   *atime_nsec = 0;
   *mtime_nsec = 0;
   *ctime_nsec = 0;
+#if PERL_VERSION < 5
+# define PL_statcache statcache
+#endif
 #ifdef TIME_HIRES_STAT
 #if TIME_HIRES_STAT == 1
   *atime_nsec = PL_statcache.st_atimespec.tv_nsec;
@@ -1213,13 +1216,19 @@ void
 stat(...)
 PROTOTYPE: ;$
     PPCODE:
-	dTHX;
 	PUSHMARK(SP);
 	XPUSHs(sv_2mortal(newSVsv(items == 1 ? ST(0) : DEFSV)));
 	PUTBACK;
 	ENTER;
+#if PERL_VERSION < 5
+# define PL_laststatval laststatval
+#endif
 	PL_laststatval = -1;
-	pp_stat();
+#if PERL_VERSION >= 6 /* 5.6.0 onwards. */
+	(void)*(PL_ppaddr[OP_STAT])(aTHX);
+#else /* 5.005* */ /* ppport.h 3.10 gets this wrong. */
+	(void)*(ppaddr[OP_STAT])(aTHX);
+#endif
 	SPAGAIN;
 	LEAVE;
 	if (PL_laststatval == 0) {
