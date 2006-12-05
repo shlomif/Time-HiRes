@@ -66,13 +66,6 @@ extern "C" {
 #   undef ITIMER_REALPROF
 #endif
 
-/* 5.004 doesn't define PL_sv_undef */
-#ifndef ATLEASTFIVEOHOHFIVE
-# ifndef PL_sv_undef
-#  define PL_sv_undef sv_undef
-# endif
-#endif
-
 #if defined(TIME_HIRES_CLOCK_GETTIME) && defined(_STRUCT_ITIMERSPEC)
 
 /* HP-UX has CLOCK_XXX values but as enums, not as defines.
@@ -720,13 +713,10 @@ myNVtime()
 static void
 hrstatns(UV atime, UV mtime, UV ctime, UV *atime_nsec, UV *mtime_nsec, UV *ctime_nsec)
 {
-  dTHX;
+  dTHXR;
   *atime_nsec = 0;
   *mtime_nsec = 0;
   *ctime_nsec = 0;
-#if PERL_VERSION < 5
-# define PL_statcache statcache
-#endif
 #ifdef TIME_HIRES_STAT
 #if TIME_HIRES_STAT == 1
   *atime_nsec = PL_statcache.st_atimespec.tv_nsec;
@@ -1220,15 +1210,8 @@ PROTOTYPE: ;$
 	XPUSHs(sv_2mortal(newSVsv(items == 1 ? ST(0) : DEFSV)));
 	PUTBACK;
 	ENTER;
-#if PERL_VERSION < 5
-# define PL_laststatval laststatval
-#endif
 	PL_laststatval = -1;
-#if PERL_VERSION >= 6 /* 5.6.0 onwards. */
-	(void)*(PL_ppaddr[OP_STAT])(aTHX);
-#else /* 5.005* */ /* ppport.h 3.10 gets this wrong. */
-	(void)*(ppaddr[OP_STAT])(aTHX);
-#endif
+	(void)*(PL_ppaddr[OP_STAT])(aTHXR);
 	SPAGAIN;
 	LEAVE;
 	if (PL_laststatval == 0) {
