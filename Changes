@@ -1,5 +1,8 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9702	[2006-12-06]
+	- restore the -DATLEASTFIVEOHOHFIVE
+
 1.9701	[2006-12-04]
 	- upgrade to ppport.h 3.10_02
 	- remove the -DATLEASTFIVEOHOHFIVE

@@ -740,6 +740,7 @@ sub doMakefile {
 	    'AUTHOR'    => 'Jarkko Hietaniemi <jhi@iki.fi>',
 	    'ABSTRACT_FROM' => 'HiRes.pm',
 	);
+	$DEFINE .= " -DATLEASTFIVEOHOHFIVE";
     }
 
     push (@makefileopts,
