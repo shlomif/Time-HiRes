@@ -4,6 +4,7 @@ fallback/const-xs.inc	Fallback code for constants
 hints/aix.pl		Hints for Time::HiRes for named architecture
 hints/dec_osf.pl	Hints for Time::HiRes for named architecture
 hints/dynixptx.pl	Hints for Time::HiRes for named architecture
+hints/linux.pl		Hints for Time::HiRes for named architecture
 hints/irix.pl		Hints for Time::HiRes for named architecture
 hints/sco.pl		Hints for Time::HiRes for named architecture
 hints/solaris.pl	Hints for Time::HiRes for named architecture
