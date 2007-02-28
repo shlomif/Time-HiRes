@@ -263,11 +263,14 @@ unless (   defined &Time::HiRes::gettimeofday
 
     $r = [Time::HiRes::gettimeofday()];
     $i = 5;
+    my $oldaction;
     if ($use_sigaction) {
+	$oldaction = new POSIX::SigAction;
 	printf "# sigaction tick, ALRM = %d\n", &POSIX::SIGALRM;
 	# Perl's deferred signals may be too wimpy to break through
 	# a restartable select(), so use POSIX::sigaction if available.
-	POSIX::sigaction(&POSIX::SIGALRM, POSIX::SigAction->new("tick"))
+	POSIX::sigaction(&POSIX::SIGALRM, POSIX::SigAction->new("tick"),
+			 $oldaction)
 	    or die "Error setting SIGALRM handler with sigaction: $!\n";
     } else {
 	print "# SIG tick\n";
@@ -316,7 +319,7 @@ unless (   defined &Time::HiRes::gettimeofday
     }
 
     if ($use_sigaction) {
-	POSIX::sigaction(&POSIX::SIGALRM, undef);
+	POSIX::sigaction(&POSIX::SIGALRM, $oldaction);
     } else {
 	alarm(0); # can't cancel usig %SIG
     }
