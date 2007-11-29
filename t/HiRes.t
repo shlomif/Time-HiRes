@@ -68,7 +68,7 @@ use Time::HiRes qw(gettimeofday);
 
 my $have_alarm = $Config{d_alarm};
 my $have_fork  = $Config{d_fork};
-my $waitfor = 90; # 30-45 seconds is normal (load affects this).
+my $waitfor = 180; # 30-45 seconds is normal (load affects this).
 my $timer_pid;
 my $TheEnd;
 
@@ -107,13 +107,13 @@ if (open(XDEFINE, "xdefine")) {
 # However, if the system is busy, there are no guarantees on how
 # quickly we will return.  This limit used to be 10%, but that
 # was occasionally triggered falsely.  
-# Try 20%.  
+# Try 25%.  
 # Another possibility might be to print "ok" if the test completes fine
 # with (say) 10% slosh, "skip - system may have been busy?" if the test
 # completes fine with (say) 30% slosh, and fail otherwise.  If you do that,
 # consider changing over to test.pl at the same time.
 # --A.D., Nov 27, 2001
-my $limit = 0.20; # 20% is acceptable slosh for testing timers
+my $limit = 0.25; # 20% is acceptable slosh for testing timers
 
 sub skip {
     map { print "ok $_ # skipped\n" } @_;
@@ -330,7 +330,8 @@ unless (   defined &Time::HiRes::gettimeofday
 unless (   defined &Time::HiRes::setitimer
 	&& defined &Time::HiRes::getitimer
 	&& has_symbol('ITIMER_VIRTUAL')
-	&& $Config{sig_name} =~ m/\bVTALRM\b/) {
+	&& $Config{sig_name} =~ m/\bVTALRM\b/
+        && $^O =~ /^(nto)$/) { # nto: QNX 6 has the API but no implementation
     for (18..19) {
 	print "ok $_ # Skip: no virtual interval timers\n";
     }
