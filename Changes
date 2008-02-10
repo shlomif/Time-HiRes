@@ -1,5 +1,13 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9712	[2008-02-09]
+	- move the sub tick in the test file back to where it used to be
+	- in the "consider upgrading" message recommend at least Perl 5.8.8
+	  and make the message to appear only for 5.8.0 since 5.8.1 and
+	  later have the problem fixed
+	- VOS tweak for Makefile (core perl change #33259)
+	- since the test #17 seems to fail often, relax its limits a bit
+
 1.9711	[2007-11-29]
 	- lost VMS test skippage from Craig Berry
 	- reformat the test code a little
