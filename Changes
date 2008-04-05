@@ -1,5 +1,15 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9713	[2008-04-04]
+	- for alarm() and ualarm() [Perl] prefer setitimer() [C]
+	  instead of ualarm() [C] since ualarm() [C] cannot portably
+	  (and standards-compliantly) be used for more than 999_999
+	  microseconds (rt.cpan.org #34655)
+	- it seems that HP-UX has started (at least in 11.31 ia64)
+	  #defining the CLOCK_REALTIME et alia (instead of having
+	  them just as enums)
+	- document all the diagnostics 
+
 1.9712	[2008-02-09]
 	- move the sub tick in the test file back to where it used to be
 	- in the "consider upgrading" message recommend at least Perl 5.8.8
