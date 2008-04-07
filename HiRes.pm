@@ -22,8 +22,8 @@ require DynaLoader;
 		 d_clock d_clock_nanosleep
 		 stat
 		);
-	
-$VERSION = '1.9713';
+
+$VERSION = '1.9714';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 

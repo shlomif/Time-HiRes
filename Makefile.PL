@@ -831,21 +831,39 @@ sub doConstants {
     }
 }
 
-sub main {
-    print "Configuring Time::HiRes...\n";
-    if ($] == 5.007002) {
-	die "Cannot Configure Time::HiRes for Perl $], aborting.\n";
-    }
+sub usage {
+    die qq{$0: Usage: $0 [configure]\n};
+}
 
-    if ($^O =~ /Win32/i) {
-      DEFINE('SELECT_IS_BROKEN');
-      $LIBS = [];
-      print "System is $^O, skipping full configure...\n";
-    } else {
-      init();
+sub main {
+    my $action;
+    if (@ARGV) {
+	if (@ARGV > 1) {
+	    usage();
+	} elsif ($ARGV[0] =~ /^(configure)$/) {
+	    $action = $1; 
+	} else {
+	    die qq{$0: Usage: $0 [configure]\n};
+	}
     }
-    doMakefile;
-    doConstants;
+    if (-f "xdefine" && !(defined $action && $action eq 'configure')) {
+	print qq[$0: The "xdefine" exists, skipping configure step.\n];
+	print qq[("$0 configure" to force configure step)\n];
+    } else {
+	print "Configuring Time::HiRes...\n";
+	1 while unlink("define");
+	if ($^O =~ /Win32/i) {
+	    DEFINE('SELECT_IS_BROKEN');
+	    $LIBS = [];
+	    print "System is $^O, skipping full configure...\n";
+	    open(XDEFINE, ">xdefine") or die "$0: Cannot create xdefine: $!\n";
+	    close(XDEFINE);
+	} else {
+	    init();
+	}
+	doMakefile;
+	doConstants;
+    }
     my $make = $Config{'make'} || "make";
     unless (exists $ENV{PERL_CORE} && $ENV{PERL_CORE}) {
 	print  <<EOM;

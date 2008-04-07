@@ -1,5 +1,16 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9714	[2008-04-07]
+	- Under Perl 5.6.* NVgf needs to be "g", reported by Zefram,
+	  it seems that ppport.h 3.13 gets this wrong.
+	- remove the check in Makefile.PL for 5.7.2, shouldn't be
+	  (a) necessary (b) relevant
+	- add logic to Makefile.PL to skip configure/write Makefile
+	  step if the "xdefine" file already exists, indicating that
+	  the configure step has already been done, one can still
+	  force (re)configure by "perl Makefile.PL configure",
+	  or of course by "make clean && perl Makefile.PL".
+
 1.9713	[2008-04-04]
 	- for alarm() and ualarm() [Perl] prefer setitimer() [C]
 	  instead of ualarm() [C] since ualarm() [C] cannot portably
