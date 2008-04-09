@@ -831,24 +831,10 @@ sub doConstants {
     }
 }
 
-sub usage {
-    die qq{$0: Usage: $0 [configure]\n};
-}
-
 sub main {
-    my $action;
-    if (@ARGV) {
-	if (@ARGV > 1) {
-	    usage();
-	} elsif ($ARGV[0] =~ /^(configure)$/) {
-	    $action = $1; 
-	} else {
-	    die qq{$0: Usage: $0 [configure]\n};
-	}
-    }
-    if (-f "xdefine" && !(defined $action && $action eq 'configure')) {
-	print qq[$0: The "xdefine" exists, skipping configure step.\n];
-	print qq[("$0 configure" to force configure step)\n];
+    if (-f "xdefine" && !(@ARGV  && $ARGV[0] eq '--configure')) {
+	print qq[$0: The "xdefine" exists, skipping the configure step.\n];
+	print qq[("$0 --configure" to force the configure step)\n];
     } else {
 	print "Configuring Time::HiRes...\n";
 	1 while unlink("define");

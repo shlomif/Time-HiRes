@@ -1,5 +1,13 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9715	[2008-04-08]
+	- Silly me: Makefile.PL does need to accept arguments other than mine.
+	  Some testing frameworks obviously do this.
+	- Add retrying for tests 34..37, which are the most commonly
+	  failing tests.  If this helps, consider extending the retry
+	  framework to all the tests.  [Inspired by Slaven Rezic,
+	  [rt.cpan.org #34711] Occasional failures of test 35 or 36 (FreeBSD)]
+
 1.9714	[2008-04-07]
 	- Under Perl 5.6.* NVgf needs to be "g", reported by Zefram,
 	  it seems that ppport.h 3.13 gets this wrong.
