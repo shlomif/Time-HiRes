@@ -241,10 +241,13 @@ my $has_ualarm = $Config{d_ualarm};
 
 $has_ualarm ||= $xdefine =~ /-DHAS_UALARM/;
 
-unless (   defined &Time::HiRes::gettimeofday
-	&& defined &Time::HiRes::ualarm
-	&& defined &Time::HiRes::usleep
-	&& $has_ualarm) {
+my $can_subsecond_alarm =
+   defined &Time::HiRes::gettimeofday &&
+   defined &Time::HiRes::ualarm &&
+   defined &Time::HiRes::usleep &&
+   $has_ualarm;
+
+unless ($can_subsecond_alarm) {
     for (15..17) {
 	print "ok $_ # Skip: no gettimeofday or no ualarm or no usleep\n";
     }
@@ -740,20 +743,23 @@ if ($^O =~ /^(cygwin|MSWin)/) {
     skip 38;
 }
 
-{
-    my $alrm;
-    $SIG{ALRM} = sub { $alrm++ };
-    alarm(0.1);
-    sleep(1);  # In any case we should get at least one SIGALRM.
-    print $alrm ? "ok 39\n" : "not ok 39\n";
-}
-
-{
-    my $alrm;
-    $SIG{ALRM} = sub { $alrm++ };
-    alarm(1.1);
-    sleep(2);  # In any case we should get at least one SIGALRM.
-    print $alrm ? "ok 40\n" : "not ok 40\n";
+unless ($can_subsecond_alarm) {
+    skip 39..40;
+} else {
+    {
+	my $alrm;
+	$SIG{ALRM} = sub { $alrm++ };
+	alarm(0.1);
+	sleep(1);  # In any case we should get at least one SIGALRM.
+	print $alrm ? "ok 39\n" : "not ok 39\n";
+    }
+    {
+	my $alrm;
+	$SIG{ALRM} = sub { $alrm++ };
+	alarm(1.1);
+	sleep(2);  # In any case we should get at least one SIGALRM.
+	print $alrm ? "ok 40\n" : "not ok 40\n";
+    }
 }
 
 END {
