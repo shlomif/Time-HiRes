@@ -749,15 +749,17 @@ unless ($can_subsecond_alarm) {
     {
 	my $alrm;
 	$SIG{ALRM} = sub { $alrm++ };
-	alarm(0.1);
-	sleep(1);  # In any case we should get at least one SIGALRM.
+	Time::HiRes::alarm(0.1);
+	my $t0 = time();
+	1 while time() - $t0 <= 1;
 	print $alrm ? "ok 39\n" : "not ok 39\n";
     }
     {
 	my $alrm;
 	$SIG{ALRM} = sub { $alrm++ };
-	alarm(1.1);
-	sleep(2);  # In any case we should get at least one SIGALRM.
+	Time::HiRes::alarm(1.1);
+	my $t0 = time();
+	1 while time() - $t0 <= 2;
 	print $alrm ? "ok 40\n" : "not ok 40\n";
     }
 }
