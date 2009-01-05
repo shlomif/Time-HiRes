@@ -23,7 +23,7 @@ require DynaLoader;
 		 stat
 		);
 
-$VERSION = '1.9718';
+$VERSION = '1.9719';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -559,6 +559,9 @@ drift off from the system clock (and the original time())  by up to 0.5
 seconds. Time::HiRes will notice this eventually and recalibrate.
 Note that since Time::HiRes 1.77 the clock_gettime(CLOCK_MONOTONIC)
 might help in this (in case your system supports CLOCK_MONOTONIC).
+
+Some systems have APIs but not implementations: for example QNX and Haiku
+have the interval timer APIs but not the functionality.
 
 =head1 SEE ALSO
 

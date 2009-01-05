@@ -347,11 +347,13 @@ unless ($can_subsecond_alarm) {
     print $not ? "not ok 17 # $not\n" : "ok 17 # $ok\n";
 }
 
-unless (   defined &Time::HiRes::setitimer
+unless (defined &Time::HiRes::setitimer
 	&& defined &Time::HiRes::getitimer
 	&& has_symbol('ITIMER_VIRTUAL')
 	&& $Config{sig_name} =~ m/\bVTALRM\b/
-        && $^O !~ /^(nto)$/) { # nto: QNX 6 has the API but no implementation
+	&& $^O ne 'nto' # nto: QNX 6 has the API but no implementation
+	&& $^O ne 'haiku' # haiku: has the API but no implementation
+    ) {
     for (18..19) {
 	print "ok $_ # Skip: no virtual interval timers\n";
     }

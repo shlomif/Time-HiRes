@@ -1,6 +1,11 @@
 Revision history for the Perl extension Time::HiRes.
 
-1.9717	[2008-12-31]
+1.9719	[2009-01-04]
+	- As with QNX, Haiku has the API of interval timers but not
+	  the implementation (bleadperl change #34630), hence skip
+	  the tests, via David Mitchell.
+
+1.9718	[2008-12-31]
 	- .xs code cleanup from Albert Dvornik
 	- in the #39 and #40 do not do us I did, mixing alarm() and
 	  sleep().  Now instead spin until enough time has passed.
