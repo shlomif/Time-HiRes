@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Time-HiRes
-version:            1.9720
+version:            1.9721
 abstract:           High resolution alarm, sleep, gettimeofday, interval timers
 author:
     - Jarkko Hietaniemi <jhi@iki.fi>

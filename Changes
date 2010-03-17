@@ -1,5 +1,11 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9721 [2010-03-17]
+	- Address [rt.cpan.org #54196] alarm and ularm return values are bogus,
+	  additional fix from Gisle Aas
+	- Address [rt.cpan.org #55665] "Bad plan" on Windows,
+	  report and fix from Jan Dubois
+
 1.9720 [2010-02-14]
 	- Address [rt.cpan.org #54196] alarm and ularm return values are bogus,
 	  report and fix from Nicholas Clark

@@ -102,7 +102,7 @@ if ($have_fork) {
 my $xdefine = ''; 
 
 if (open(XDEFINE, "xdefine")) {
-    chomp($xdefine = <XDEFINE>);
+    chomp($xdefine = <XDEFINE> || "");
     close(XDEFINE);
 }
 
@@ -775,7 +775,7 @@ unless ($can_subsecond_alarm) {
 	1 while time() - $t0 <= 1;
 
 	$got = Time::HiRes::alarm(0);
-	ok(42, $got > 0 && $got <= 1.7, $got);
+	ok(42, $got > 0 && $got < 1.8, $got);
 
 	ok(43, $alrm == 0, $alrm);
 
@@ -784,7 +784,10 @@ unless ($can_subsecond_alarm) {
     }
 }
 
-if ($have_ualarm) {
+unless ($have_ualarm) {
+	skip 45..48;
+}
+else {
     {
 	my $alrm = 0;
 	$SIG{ALRM} = sub { $alrm++ };
