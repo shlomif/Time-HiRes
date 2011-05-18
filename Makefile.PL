@@ -100,7 +100,7 @@ sub try_compile_and_link {
 
 	if ($ENV{PERL_CORE}) {
 	    my $updir = File::Spec->updir;
-	    $COREincdir = File::Spec->catdir(($updir) x 3);
+	    $COREincdir = File::Spec->catdir(($updir) x 2);
 	} else {
 	    $COREincdir = File::Spec->catdir($Config{'archlibexp'}, 'CORE');
 	}
@@ -118,15 +118,7 @@ __EOD__
 	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir";
 
 	if ($^O eq 'VMS') {
-	    if ($ENV{PERL_CORE}) {
-		# Fragile if the extensions change hierarchy within
-		# the Perl core but this should do for now.
-                $cccmd = "$Config{'cc'} /include=([---]) $tmp.c";
-	    } else {
-		my $perl_core = $Config{'installarchlib'};
-		$perl_core =~ s/\]$/.CORE]/;
-                $cccmd = "$Config{'cc'} /include=(perl_root:[000000],$perl_core) $tmp.c";
-	    }
+            $cccmd = "$Config{'cc'} /include=($COREincdir) $tmp.c";
         }
 
         if ($args{silent} || !$VERBOSE) {
@@ -775,6 +767,27 @@ sub doMakefile {
         clean => { FILES => "xdefine" },
         realclean => { FILES=> 'const-c.inc const-xs.inc' },
     );
+
+    if ($^O eq "MSWin32" && !(grep { /\ALD[A-Z]*=/ } @ARGV)) {
+	my $libperl = $Config{libperl} || "";
+	my $gccversion = $Config{gccversion} || "";
+	if ($gccversion =~ /\A3\.4\.[0-9]+/ and $libperl =~ /\.lib\z/) {
+	    # Avoid broken linkage with ActivePerl, by linking directly
+	    # against the Perl DLL rather than the import library.
+	    (my $llibperl = "-l$libperl") =~ s/\.lib\z//;
+	    my $lddlflags = $Config{lddlflags} || "";
+	    my $ldflags = $Config{ldflags} || "";
+	    s/-L(?:".*?"|\S+)//g foreach $lddlflags, $ldflags;
+	    my $libdirs = join ' ',
+		map { s/(?<!\\)((?:\\\\)*")/\\$1/g; qq[-L"$_"] }
+		@Config{qw/bin sitebin/};
+	    push @makefileopts, macro => {
+		LDDLFLAGS => "$lddlflags $libdirs $llibperl",
+		LDFLAGS => "$ldflags $libdirs $llibperl",
+		PERL_ARCHIVE => "",
+	    };
+	}
+    }
 
     if ($ENV{PERL_CORE}) {
 	push @makefileopts, MAN3PODS => {};
