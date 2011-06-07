@@ -10,7 +10,18 @@ hints/sco.pl		Hints for Time::HiRes for named architecture
 hints/solaris.pl	Hints for Time::HiRes for named architecture
 hints/svr4.pl		Hints for Time::HiRes for named architecture
 HiRes.pm		Time::HiRes extension
-t/HiRes.t		Test for Time::HiRes
+t/Watchdog.pm		Watchdog for timing tests
+t/alarm.t		Test for Time::HiRes::alarm
+t/clock.t		Test for Time::HiRes::clock*
+t/gettimeofday.t	Test for Time::HiRes::gettimeofday
+t/itimer.t		Test for Time::HiRes::*itimer
+t/nanosleep.t		Test for Time::HiRes::nanosleep
+t/sleep.t		Test for Time::HiRes::sleep
+t/stat.t		Test for Time::HiRes::stat
+t/time.t		Test for Time::HiRes::time
+t/tv_interval.t		Test for two-arg Time::HiRes::tv_interval
+t/ualarm.t		Test for Time::HiRes::ualarm
+t/usleep.t		Test for Time::HiRes::usleep
 HiRes.xs		Time::HiRes extension
 Makefile.PL		Time::HiRes extension
 MANIFEST		Time::HiRes extension

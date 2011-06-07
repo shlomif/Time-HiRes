@@ -759,6 +759,9 @@ sub doMakefile {
 	  # Solaris will avenge.
 	'INC'	=> '',     # e.g., '-I/usr/include/other'
 	'INSTALLDIRS' => ($] >= 5.008 ? 'perl' : 'site'),
+	'PREREQ_PM' => {
+	    'Test::More' => "0.82",
+	},
 	'dist'      => {
 	    'CI'       => 'ci -l',
 	    'COMPRESS' => 'gzip -9f',
