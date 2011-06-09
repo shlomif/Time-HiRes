@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Time-HiRes
-version:            1.9723
+version:            1.9724
 abstract:           High resolution alarm, sleep, gettimeofday, interval timers
 author:
     - Jarkko Hietaniemi <jhi@iki.fi>
@@ -11,7 +11,13 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Test::More:  0.82
+    Carp:                 0
+    Config:               0
+    DynaLoader:           0
+    Exporter:             0
+    ExtUtils::MakeMaker:  0
+    strict:               0
+    Test::More:           0.82
 no_index:
     directory:
         - t
