@@ -115,7 +115,8 @@ __EOD__
             }
         }
 
-	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir";
+	my $ccflags = $Config{'ccflags'} . ' ' . "-I$COREincdir"
+	 . ' -DPERL_NO_INLINE_FUNCTIONS';
 
 	if ($^O eq 'VMS') {
             $cccmd = "$Config{'cc'} /include=($COREincdir) $tmp.c";
@@ -758,7 +759,7 @@ sub doMakefile {
 	  # Do not even think about 'INC' => '-I/usr/ucbinclude',
 	  # Solaris will avenge.
 	'INC'	=> '',     # e.g., '-I/usr/include/other'
-	'INSTALLDIRS' => ($] >= 5.008 ? 'perl' : 'site'),
+	'INSTALLDIRS' => ($] >= 5.008 && $] < 5.011 ? 'perl' : 'site'),
 	'PREREQ_PM' => {
 	    'Carp' => 0,
 	    'Config' => 0,
