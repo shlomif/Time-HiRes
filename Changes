@@ -1,5 +1,10 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9727 [2015-??-??]
+  - Remove usage of 5.005 thread APIs in favor of 5.6 and up thread APIs
+    [rt.cpan.org #102799].
+  - Silence a C++ compiler warning [rt.cpan.org #101497].
+
 1.9726 [2013-08-17]
 	- Correct s/us splitting of usleep(1000000) [rt.cpan.org #78266].
 	- Avoid integer overflow in itimer-based alarm() with large
