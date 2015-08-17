@@ -43,7 +43,8 @@ note "setitimer: ", join(" ",
 
 # Assume interval timer granularity of $limit * 0.5 seconds.  Too bold?
 my $virt = Time::HiRes::getitimer(&Time::HiRes::ITIMER_VIRTUAL);
-ok defined $virt && abs($virt / 0.5) - 1 < $limit
+ok(defined $virt && abs($virt / 0.5) - 1 < $limit,
+   "ITIMER_VIRTUAL defined with sufficient granularity")
    or diag "virt=" . (defined $virt ? $virt : 'undef');
 
 note "getitimer: ", join(" ",
