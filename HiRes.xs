@@ -1265,7 +1265,7 @@ clock()
 	clock_t clocks;
     CODE:
 	clocks = clock();
-	RETVAL = clocks == -1 ? -1 : (NV)clocks / (NV)CLOCKS_PER_SEC;
+	RETVAL = clocks == (clock_t) -1 ? (clock_t) -1 : (NV)clocks / (NV)CLOCKS_PER_SEC;
 
     OUTPUT:
 	RETVAL
