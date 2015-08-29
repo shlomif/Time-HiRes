@@ -1,6 +1,10 @@
 Revision history for the Perl extension Time::HiRes.
 
-1.9727_01 [2015-??-??]
+1.9727_02 [2015-08-??]
+  - correct documentation to note that Time::NVtime is NV, not double
+    [perl #123879]
+
+1.9727_01 [2015-08-17]
   - Remove usage of 5.005 thread APIs in favor of 5.6 and up thread APIs
     [rt.cpan.org #102799].
   - Silence a C++ compiler warning [rt.cpan.org #101497].
