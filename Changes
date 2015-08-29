@@ -1,6 +1,6 @@
 Revision history for the Perl extension Time::HiRes.
 
-1.9727_02 [2015-08-??]
+1.9727_02 [2015-08-29]
   - correct documentation to note that Time::NVtime is NV, not double
     [perl #123879]
   - avoid a warning about clock_t on OS X / clang 3.6 - 3.6
