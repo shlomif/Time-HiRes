@@ -804,8 +804,20 @@ sub doMakefile {
     if ($ENV{PERL_CORE}) {
 	push @makefileopts, MAN3PODS => {};
     }
+
     if ($ExtUtils::MakeMaker::VERSION >= 6.31) {
 	push @makefileopts, (LICENSE => 'perl_5');
+    }
+
+    if ($ExtUtils::MakeMaker::VERSION >= 6.54) {
+	push @makefileopts,
+    (
+	META_MERGE => {
+	    resources => {
+		repository => 'https://github.com/rjbs/Time-HiRes',
+	    },
+	},
+    );
     }
 
     WriteMakefile(@makefileopts);
