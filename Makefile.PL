@@ -804,6 +804,9 @@ sub doMakefile {
     if ($ENV{PERL_CORE}) {
 	push @makefileopts, MAN3PODS => {};
     }
+    if ($ExtUtils::MakeMaker::VERSION >= 6.31) {
+	push @makefileopts, (LICENSE => 'perl_5');
+    }
 
     WriteMakefile(@makefileopts);
 }
