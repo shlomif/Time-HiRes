@@ -1,5 +1,9 @@
 Revision history for the Perl extension Time::HiRes.
 
+1.9727_03 [2015-11-06]
+  - use PERL_UNUSED_ARG() in the not-here-croak branches
+  - Makefile.PL/metadata improvements
+
 1.9727_02 [2015-08-29]
   - correct documentation to note that Time::NVtime is NV, not double
     [perl #123879]
