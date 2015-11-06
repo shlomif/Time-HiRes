@@ -29,5 +29,3 @@ ppport.h		Devel::PPPort code
 README			Time::HiRes extension
 TODO			Time::HiRes extension
 typemap			Time::HiRes extension
-META.yml		Module meta-data (added by MakeMaker)
-META.json                                Module JSON meta-data (added by MakeMaker)
